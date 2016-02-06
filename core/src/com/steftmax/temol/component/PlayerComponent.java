@@ -6,6 +6,6 @@ import com.badlogic.ashley.core.Component;
  * @author pieter3457
  *
  */
-public class ControllerComponent implements Component{
+public class PlayerComponent implements Component{
 
 }

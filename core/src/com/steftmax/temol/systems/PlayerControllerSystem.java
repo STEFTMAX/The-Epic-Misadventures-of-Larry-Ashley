@@ -6,19 +6,19 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.steftmax.temol.component.ControllerComponent;
+import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.component.PhysicsComponent;
 
 /**
  * @author pieter3457
  *
  */
-public class BodyControllerSystem extends IteratingSystem {
+public class PlayerControllerSystem extends IteratingSystem {
 
 	private ComponentMapper<PhysicsComponent> pm = ComponentMapper.getFor(PhysicsComponent.class);
 	
-	public BodyControllerSystem() {
-		super(Family.all(ControllerComponent.class, PhysicsComponent.class).get());
+	public PlayerControllerSystem() {
+		super(Family.all(PlayerComponent.class, PhysicsComponent.class).get());
 	}
 
 	/*
