@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="100" height="100" tilewidth="32" tileheight="32" nextobjectid="14">
+ <tileset firstgid="1" name="tiles" tilewidth="32" tileheight="32" tilecount="256">
+  <image source="tiles.png" width="512" height="512"/>
+ </tileset>
+ <layer name="Tile Layer 1" width="100" height="100">
+  <data encoding="base64" compression="zlib">
+   eJzt1MsKgDAMRUFRfP3/D1sXItm2wYDMwN2HHug0AQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAECeve1omzu2FNz7V0+Hs23t3Pb51f+T0UGPcZkd9Hj1/PP3Mjvo8cp+Uz3GVDfQI6puoEdU3UCPqLqBHlF1Az2iC/jkBkQ=
+  </data>
+ </layer>
+ <objectgroup name="Object Layer 1">
+  <object id="2" name="environment" type="object" x="0" y="2976">
+   <properties>
+    <property name="bodyType" value="StaticBody"/>
+   </properties>
+   <polygon points="448,0 704,-128 1152,-128 1152,224 448,224"/>
+  </object>
+  <object id="7" name="environment2" type="object" x="0" y="2976" width="448" height="224">
+   <properties>
+    <property name="bodyType" value="StaticBody"/>
+   </properties>
+  </object>
+ </objectgroup>
+</map>
