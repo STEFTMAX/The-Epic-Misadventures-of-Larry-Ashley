@@ -79,7 +79,7 @@ public class GameScreen extends ScreenAdapter {
 //		PolygonShape sensor = new PolygonShape();
 //		sensor.setAsBox(.4f, sensorHeight, new Vector2(0f, -.8f - sensorHeight), 0);
 
-		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setPosition(10, 12).setType(BodyType.DynamicBody),
+		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setPosition(10, 16).setType(BodyType.DynamicBody),
 				new ChainableFixtureDef().setShape(shape).setDensity(1))).add(new PlayerComponent())
 				.add(new CameraTargetComponent()).add(new GroundedComponent(0, -.8f));
 
