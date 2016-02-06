@@ -93,7 +93,7 @@ public class WorldSystem extends EntitySystem {
 
 	@Override
 	public void addedToEngine(Engine engine) {
-
+		super.addedToEngine(engine);
 		// PERFORMANCE: When many physical entities are spawned a lot of physics
 		// definitions are instanced and dereferenced.
 		engine.addEntityListener(Family.all(PhysicsDefComponent.class).get(), la);
@@ -112,6 +112,7 @@ public class WorldSystem extends EntitySystem {
 	 */
 	@Override
 	public void removedFromEngine(Engine engine) {
+		super.removedFromEngine(engine);
 		engine.removeEntityListener(la);
 		engine.removeEntityListener(lb);
 	}
