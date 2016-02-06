@@ -60,6 +60,8 @@ public class WorldSystem extends EntitySystem {
 			// create the fixtures
 			final Fixture[] fixtures = new Fixture[pdc.fixtureDefs.length];
 			for (int i = 0; i < pdc.fixtureDefs.length; i++) {
+				// NOTE: it's important that the fixtures keep the same index as
+				// they had in their fixturedef state
 				fixtures[i] = body.createFixture(pdc.fixtureDefs[i]);
 			}
 
@@ -77,8 +79,7 @@ public class WorldSystem extends EntitySystem {
 		}
 
 		@Override
-		public void entityRemoved(Entity entity) {
-		}
+		public void entityRemoved(Entity entity) {}
 	}, lb = new EntityListener() {
 
 		@Override
@@ -87,8 +88,7 @@ public class WorldSystem extends EntitySystem {
 		}
 
 		@Override
-		public void entityAdded(Entity entity) {
-		}
+		public void entityAdded(Entity entity) {}
 	};
 
 	@Override
@@ -152,7 +152,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param timeStep
-	 *            the timeStep to set
+	 * the timeStep to set
 	 */
 	public void setTimeStep(float timeStep) {
 		this.timeStep = timeStep;
@@ -160,7 +160,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param velocityIterations
-	 *            the velocityIterations to set
+	 * the velocityIterations to set
 	 */
 	public void setVelocityIterations(int velocityIterations) {
 		this.velocityIterations = velocityIterations;
@@ -168,7 +168,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param positionIterations
-	 *            the positionIterations to set
+	 * the positionIterations to set
 	 */
 	public void setPositionIterations(int positionIterations) {
 		this.positionIterations = positionIterations;
