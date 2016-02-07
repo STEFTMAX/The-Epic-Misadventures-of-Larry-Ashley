@@ -73,15 +73,15 @@ public class GameScreen extends ScreenAdapter {
 		Entity ent = new Entity();
 
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(.4f, .8f);
+		shape.setAsBox(.4f, LARRYHEIGHT/2);
 
 //		final float sensorHeight = .1f / 2f;
 //		PolygonShape sensor = new PolygonShape();
 //		sensor.setAsBox(.4f, sensorHeight, new Vector2(0f, -.8f - sensorHeight), 0);
 
-		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setPosition(10, 16).setType(BodyType.DynamicBody),
+		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setFixedRotation(true).setPosition(10, 16).setType(BodyType.DynamicBody),
 				new ChainableFixtureDef().setShape(shape).setDensity(1))).add(new PlayerComponent())
-				.add(new CameraTargetComponent()).add(new GroundedComponent(0, -.8f));
+				.add(new CameraTargetComponent()).add(new GroundedComponent(0, LARRYHEIGHT/-2f));
 
 		entityEngine.addEntity(ent);
 

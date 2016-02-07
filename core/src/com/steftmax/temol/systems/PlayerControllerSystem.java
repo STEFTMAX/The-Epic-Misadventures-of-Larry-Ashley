@@ -17,7 +17,8 @@ import com.steftmax.temol.component.PlayerComponent;
  */
 public class PlayerControllerSystem extends IteratingSystem {
 
-	private static final float JUMPIMPULSE = 4;
+	private static final float MAXVELOCITY = 2f;
+	private static final float JUMPIMPULSE = 4f;
 	private ComponentMapper<PhysicsComponent> pm = ComponentMapper.getFor(PhysicsComponent.class);
 	private ComponentMapper<GroundedComponent> gm = ComponentMapper.getFor(GroundedComponent.class);
 
@@ -39,25 +40,29 @@ public class PlayerControllerSystem extends IteratingSystem {
 		final GroundedComponent gc = gm.get(entity);
 
 		final Vector2 position = pc.body.getPosition();
-		
+
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-				
-				//The minuscule boost to help overcome jumping twice or even more often
+
+				// The minuscule boost to help overcome jumping twice or even
+				// more often
 				final float y = position.y + .01f;
-				
-				
+
 				pc.body.setTransform(position.x, y, pc.body.getAngle());
 				pc.body.applyLinearImpulse(0, JUMPIMPULSE, position.x, y, true);
 				gc.isGrounded = false;
-				
-			} else {
-				if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-					pc.body.setLinearVelocity(-1, 0);
-				}
 
-				if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-					pc.body.setLinearVelocity(1, 0);
+			} else {
+				if (Math.abs(pc.body.getLinearVelocity().len2()) < MAXVELOCITY * MAXVELOCITY) {
+					if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+						// pc.body.applyForceToCenter(-10, 0, true);
+						pc.body.applyLinearImpulse(-1, 0, position.x, position.y, true);
+					}
+
+					if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+						// pc.body.applyForceToCenter(10, 0, true);
+						pc.body.applyLinearImpulse(1, 0, position.x, position.y, true);
+					}
 				}
 			}
 		}
