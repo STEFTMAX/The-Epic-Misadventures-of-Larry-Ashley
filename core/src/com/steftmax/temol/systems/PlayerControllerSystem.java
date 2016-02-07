@@ -7,9 +7,13 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.steftmax.temol.component.GroundedComponent;
 import com.steftmax.temol.component.PhysicsComponent;
 import com.steftmax.temol.component.PlayerComponent;
+
+import sun.management.Sensor;
 
 /**
  * @author pieter3457
@@ -39,33 +43,49 @@ public class PlayerControllerSystem extends IteratingSystem {
 		final PhysicsComponent pc = pm.get(entity);
 		final GroundedComponent gc = gm.get(entity);
 
-		final Vector2 position = pc.body.getPosition();
+		final Body b = pc.body;
+		final Vector2 pos = pc.body.getPosition();
+
+		final Fixture feetFixture = gc.sensorFixture;
+		if (!gc.isGrounded) {
+			feetFixture.setFriction(0f);
+		} else {
+			if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+				feetFixture.setFriction(100f); //TODO change actual values in the contact!
+			} else {
+				feetFixture.setFriction(.2f);
+
+			}
+		}
 
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 
-				// The minuscule boost to help overcome jumping twice or even
+				// The minuscule boost to help overcome jumping twice or
+				// even
 				// more often
-				final float y = position.y + .01f;
+				final float y = pos.y + .01f;
 
-				pc.body.setTransform(position.x, y, pc.body.getAngle());
-				pc.body.applyLinearImpulse(0, JUMPIMPULSE, position.x, y, true);
+				pc.body.setTransform(pos.x, y, pc.body.getAngle());
+				pc.body.applyLinearImpulse(0, JUMPIMPULSE, pos.x, y, true);
 				gc.isGrounded = false;
 
 			} else {
-				if (Math.abs(pc.body.getLinearVelocity().len2()) < MAXVELOCITY * MAXVELOCITY) {
-					if (Gdx.input.isKeyPressed(Input.Keys.A)) {
-						// pc.body.applyForceToCenter(-10, 0, true);
-						pc.body.applyLinearImpulse(-1, 0, position.x, position.y, true);
-					}
+				if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+					// pc.body.applyForceToCenter(-10, 0, true);
+					pc.body.applyLinearImpulse(-1, 0, pos.x, pos.y, true);
+				}
 
-					if (Gdx.input.isKeyPressed(Input.Keys.D)) {
-						// pc.body.applyForceToCenter(10, 0, true);
-						pc.body.applyLinearImpulse(1, 0, position.x, position.y, true);
-					}
+				if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+					// pc.body.applyForceToCenter(10, 0, true);
+					b.applyLinearImpulse(1, 0, pos.x, pos.y, true);
+				}
+
+				if (Math.abs(b.getLinearVelocity().x) > MAXVELOCITY) {
+					b.setLinearVelocity(Math.signum(b.getLinearVelocity().x) * MAXVELOCITY, b.getLinearVelocity().y);
 				}
 			}
 		}
-
 	}
+
 }
