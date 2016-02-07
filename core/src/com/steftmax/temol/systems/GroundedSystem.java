@@ -15,10 +15,10 @@ import com.steftmax.temol.component.PhysicsComponent;
 
 /**
  * @author pieter3457
- * This has two tasks:
- * 1. Separating a fixture that is the sensor of the body for ground
- * test
- * 2. Testing of state and setting it
+ *         This has two tasks:
+ *         1. Separating a fixture that is the sensor of the body for ground
+ *         test
+ *         2. Testing of state and setting it
  */
 public class GroundedSystem extends IteratingSystem {
 
@@ -39,13 +39,13 @@ public class GroundedSystem extends IteratingSystem {
 			GroundedComponent sc = sm.get(entity);
 			PhysicsComponent pc = pm.get(entity);
 
-			sc.sensorFixture = pc.fixtures[sc.feetFixtureIndex];
+			sc.feetFixture = pc.fixtures[sc.feetFixtureIndex];
 
 		}
 
 		@Override
 		public void entityRemoved(Entity entity) {
-			sm.get(entity).sensorFixture = null;
+			sm.get(entity).feetFixture = null;
 		}
 	};
 
@@ -101,15 +101,15 @@ public class GroundedSystem extends IteratingSystem {
 		final GroundedComponent sc = sm.get(entity);
 
 		sc.isGrounded = isGrounded(sc, pm.get(entity));
-		
-//		System.out.println("State " + sc.state.name());
+
+		// System.out.println("State " + sc.state.name());
 	}
-	
+
 	private boolean isGrounded(GroundedComponent sc, PhysicsComponent pc) {
 		for (Contact contact : contacts) {
-			
+
 			if (contact.isTouching()
-					&& (contact.getFixtureA() == sc.sensorFixture || contact.getFixtureB() == sc.sensorFixture)) {
+					&& (contact.getFixtureA() == sc.feetFixture || contact.getFixtureB() == sc.feetFixture)) {
 				final Vector2[] contactPoints = contact.getWorldManifold().getPoints();
 				final Vector2 position = pc.body.getPosition();
 				boolean below = true;
@@ -118,12 +118,18 @@ public class GroundedSystem extends IteratingSystem {
 					below &= contactPoints[i].y <= position.y + sc.relativeFeetHeight;
 				}
 
-				
-				if (below)
+				if (below) {
+					sc.groundContact = contact;
+					sc.groundFixture = contact.getFixtureA() == sc.feetFixture ? contact.getFixtureB()
+							: contact.getFixtureB();
 					return true;
+				}
 			}
 		}
-		
+
+		sc.groundFixture = null;
+		sc.groundContact = null;
+
 		return false;
 	}
 

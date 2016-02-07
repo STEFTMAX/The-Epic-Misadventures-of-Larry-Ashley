@@ -46,14 +46,14 @@ public class PlayerControllerSystem extends IteratingSystem {
 		final Body b = pc.body;
 		final Vector2 pos = pc.body.getPosition();
 
-		final Fixture feetFixture = gc.sensorFixture;
+		final Fixture feetFixture = gc.feetFixture;
 		if (!gc.isGrounded) {
 			feetFixture.setFriction(0f);
 		} else {
 			if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
-				feetFixture.setFriction(100f); //TODO change actual values in the contact!
+				gc.groundContact.setFriction(1f); //TODO change actual values in the contact!
 			} else {
-				feetFixture.setFriction(.2f);
+				gc.groundContact.setFriction(.2f);
 
 			}
 		}

@@ -1,6 +1,7 @@
 package com.steftmax.temol.component;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 
 /**
@@ -11,7 +12,9 @@ public class GroundedComponent implements Component {
 
 	public boolean isGrounded = false;
 
-	public Fixture sensorFixture;
+	public Contact groundContact;
+	
+	public Fixture feetFixture, groundFixture;
 
 	public int feetFixtureIndex;
 	
