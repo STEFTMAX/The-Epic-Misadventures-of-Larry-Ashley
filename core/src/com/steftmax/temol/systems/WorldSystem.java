@@ -41,64 +41,80 @@ public class WorldSystem extends EntitySystem {
 	 * com.badlogic.ashley.core.EntitySystem#addedToEngine(com.badlogic.ashley.
 	 * core.Engine)
 	 */
+
+	EntityListener la = new EntityListener() {
+
+		@Override
+		public void entityAdded(Entity entity) {
+			// Step 1: create the parts from the definition
+
+			// Step 2: remove the definitions, because these are no longer
+			// needed after creation
+
+			// Step 1
+			final PhysicsDefComponent pdc = pdm.get(entity);
+
+			// create the body
+			final Body body = w.createBody(pdc.bodyDef);
+
+			// create the fixtures
+			final Fixture[] fixtures = new Fixture[pdc.fixtureDefs.length];
+			for (int i = 0; i < pdc.fixtureDefs.length; i++) {
+				// NOTE: it's important that the fixtures keep the same index as
+				// they had in their fixturedef state
+				fixtures[i] = body.createFixture(pdc.fixtureDefs[i]);
+			}
+
+			entity.add(new PhysicsComponent(body, fixtures));
+
+			// Step 2
+
+			for (int i = 0; i < pdc.fixtureDefs.length; i++) {
+				// dispose each individual shape because they arent cleaned
+				// otherwise
+				pdc.fixtureDefs[i].shape.dispose();
+			}
+
+			entity.remove(PhysicsDefComponent.class);
+		}
+
+		@Override
+		public void entityRemoved(Entity entity) {}
+	}, lb = new EntityListener() {
+
+		@Override
+		public void entityRemoved(Entity entity) {
+			w.destroyBody(pm.get(entity).body);
+		}
+
+		@Override
+		public void entityAdded(Entity entity) {}
+	};
+
 	@Override
 	public void addedToEngine(Engine engine) {
-
+		super.addedToEngine(engine);
 		// PERFORMANCE: When many physical entities are spawned a lot of physics
 		// definitions are instanced and dereferenced.
+		engine.addEntityListener(Family.all(PhysicsDefComponent.class).get(), la);
 
-		engine.addEntityListener(Family.all(PhysicsDefComponent.class).get(), new EntityListener() {
-			
-			@Override
-			public void entityAdded(Entity entity) {
-				// Step 1: create the parts from the definition
-				
-				// Step 2: remove the definitions, because these are no longer
-				// needed after creation
+		// Tested and this works!
+		engine.addEntityListener(Family.all(PhysicsComponent.class).get(), lb);
 
-				// Step 1
-				final PhysicsDefComponent pdc = pdm.get(entity);
+	}
 
-				// create the body
-				final Body body = w.createBody(pdc.bodyDef);
-
-				// create the fixtures
-				final Fixture[] fixtures = new Fixture[pdc.fixtureDefs.length];
-				for (int i = 0; i < pdc.fixtureDefs.length; i++) {
-					fixtures[i] = body.createFixture(pdc.fixtureDefs[i]);
-				}
-
-				entity.add(new PhysicsComponent(body, fixtures));
-
-				// Step 2
-				
-				for (int i = 0; i < pdc.fixtureDefs.length; i++) {
-					// dispose each individual shape because they arent cleaned
-					// otherwise
-					pdc.fixtureDefs[i].shape.dispose();
-				}
-				
-				entity.remove(PhysicsDefComponent.class);
-			}
-			
-			@Override
-			public void entityRemoved(Entity entity) {
-			}
-		});
-
-		//Tested and this works!
-		engine.addEntityListener(Family.all(PhysicsComponent.class).get(), new EntityListener() {
-
-			@Override
-			public void entityRemoved(Entity entity) {
-				w.destroyBody(pm.get(entity).body);
-			}
-
-			@Override
-			public void entityAdded(Entity entity) {
-			}
-		});
-
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see
+	 * com.badlogic.ashley.core.EntitySystem#removedFromEngine(com.badlogic.
+	 * ashley.core.Engine)
+	 */
+	@Override
+	public void removedFromEngine(Engine engine) {
+		super.removedFromEngine(engine);
+		engine.removeEntityListener(la);
+		engine.removeEntityListener(lb);
 	}
 
 	/*
@@ -136,7 +152,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param timeStep
-	 *            the timeStep to set
+	 * the timeStep to set
 	 */
 	public void setTimeStep(float timeStep) {
 		this.timeStep = timeStep;
@@ -144,7 +160,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param velocityIterations
-	 *            the velocityIterations to set
+	 * the velocityIterations to set
 	 */
 	public void setVelocityIterations(int velocityIterations) {
 		this.velocityIterations = velocityIterations;
@@ -152,7 +168,7 @@ public class WorldSystem extends EntitySystem {
 
 	/**
 	 * @param positionIterations
-	 *            the positionIterations to set
+	 * the positionIterations to set
 	 */
 	public void setPositionIterations(int positionIterations) {
 		this.positionIterations = positionIterations;
