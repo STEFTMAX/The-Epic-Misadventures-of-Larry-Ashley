@@ -16,10 +16,12 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.steftmax.temol.component.CameraTargetComponent;
-import com.steftmax.temol.component.ControllerComponent;
+import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.component.PhysicsDefComponent;
-import com.steftmax.temol.systems.BodyControllerSystem;
+import com.steftmax.temol.component.GroundedComponent;
+import com.steftmax.temol.systems.PlayerControllerSystem;
 import com.steftmax.temol.systems.CameraTrackingSystem;
+import com.steftmax.temol.systems.GroundedSystem;
 import com.steftmax.temol.systems.WorldSystem;
 import com.steftmax.temol.tool.Box2DMapObjectParser;
 import com.steftmax.temol.tool.ChainableBodyDef;
@@ -63,23 +65,23 @@ public class GameScreen extends ScreenAdapter {
 
 		entityEngine = new Engine();
 
-		entityEngine.addSystem(new BodyControllerSystem());
+		entityEngine.addSystem(new PlayerControllerSystem());
 		entityEngine.addSystem(new WorldSystem(w, 1f / 60f, 6, 2));
+		entityEngine.addSystem(new GroundedSystem(w));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		Entity ent = new Entity();
 
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(.4f,.8f);
+		shape.setAsBox(.4f, LARRYHEIGHT/2);
 
-		final float sensorHeight = .1f/2f;
-		PolygonShape sensor = new PolygonShape();
-		sensor.setAsBox(.4f, sensorHeight, new Vector2(0f,-.8f-sensorHeight),0);
+//		final float sensorHeight = .1f / 2f;
+//		PolygonShape sensor = new PolygonShape();
+//		sensor.setAsBox(.4f, sensorHeight, new Vector2(0f, -.8f - sensorHeight), 0);
 
-		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setPosition(10, 12).setType(BodyType.DynamicBody),
-				new ChainableFixtureDef().setShape(shape).setDensity(1),
-				new ChainableFixtureDef().setShape(sensor).setSensor(true))).add(new ControllerComponent())
-				.add(new CameraTargetComponent());
+		ent.add(new PhysicsDefComponent(new ChainableBodyDef().setFixedRotation(true).setPosition(10, 16).setType(BodyType.DynamicBody),
+				new ChainableFixtureDef().setShape(shape).setDensity(1))).add(new PlayerComponent())
+				.add(new CameraTargetComponent()).add(new GroundedComponent(0, LARRYHEIGHT/-2f));
 
 		entityEngine.addEntity(ent);
 
