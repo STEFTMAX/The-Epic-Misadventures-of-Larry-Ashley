@@ -6,14 +6,10 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.steftmax.temol.component.GroundedComponent;
-import com.steftmax.temol.component.PhysicsComponent;
+import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
-
-import sun.management.Sensor;
+import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.VelocityComponent;
 
 /**
  * @author pieter3457
@@ -22,12 +18,14 @@ import sun.management.Sensor;
 public class PlayerControllerSystem extends IteratingSystem {
 
 	private static final float MAXVELOCITY = 2f;
-	private static final float JUMPIMPULSE = 4f;
-	private ComponentMapper<PhysicsComponent> pm = ComponentMapper.getFor(PhysicsComponent.class);
-	private ComponentMapper<GroundedComponent> gm = ComponentMapper.getFor(GroundedComponent.class);
+	private static final float JUMP = 4f;
+	private static final float MOVEACCELERATION = 2f;
+	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
+	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
 
 	public PlayerControllerSystem() {
-		super(Family.all(PlayerComponent.class, PhysicsComponent.class, GroundedComponent.class).get());
+		super(Family.all(PlayerComponent.class, PositionComponent.class, VelocityComponent.class).get());
 	}
 
 	/*
@@ -40,49 +38,40 @@ public class PlayerControllerSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-		final PhysicsComponent pc = pm.get(entity);
-		final GroundedComponent gc = gm.get(entity);
+		final PositionComponent pc = pm.get(entity);
+		final VelocityComponent vc = vm.get(entity);
+		final GravityComponent gc = gm.get(entity);
 
-		final Body b = pc.body;
-		final Vector2 pos = pc.body.getPosition();
 
-		final Fixture feetFixture = gc.feetFixture;
-		if (!gc.isGrounded) {
-			feetFixture.setFriction(0f);
-		} else {
-			if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
-				gc.groundContact.setFriction(1f); //TODO change actual values in the contact!
-			} else {
-				gc.groundContact.setFriction(.2f);
-
-			}
-		}
+//		if (!gc.isGrounded) {
+//			feetFixture.setFriction(0f);
+//		} else {
+//			if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+//				gc.groundContact.setFriction(1f); //TODO change actual values in the contact!
+//			} else {
+//				gc.groundContact.setFriction(.2f);
+//
+//			}
+//		}
 
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
-
-				// The minuscule boost to help overcome jumping twice or
-				// even
-				// more often
-				final float y = pos.y + .01f;
-
-				pc.body.setTransform(pos.x, y, pc.body.getAngle());
-				pc.body.applyLinearImpulse(0, JUMPIMPULSE, pos.x, y, true);
+				vc.velocity.y = JUMP;
 				gc.isGrounded = false;
 
 			} else {
 				if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
 					// pc.body.applyForceToCenter(-10, 0, true);
-					pc.body.applyLinearImpulse(-1, 0, pos.x, pos.y, true);
+					vc.velocity.x -= MOVEACCELERATION * deltaTime;
 				}
 
 				if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
 					// pc.body.applyForceToCenter(10, 0, true);
-					b.applyLinearImpulse(1, 0, pos.x, pos.y, true);
+					vc.velocity.x += MOVEACCELERATION * deltaTime;
 				}
 
-				if (Math.abs(b.getLinearVelocity().x) > MAXVELOCITY) {
-					b.setLinearVelocity(Math.signum(b.getLinearVelocity().x) * MAXVELOCITY, b.getLinearVelocity().y);
+				if (Math.abs(vc.velocity.x) > MAXVELOCITY) {
+					vc.velocity.x = Math.signum(vc.velocity.x) * MAXVELOCITY;
 				}
 			}
 		}
