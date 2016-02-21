@@ -2,6 +2,7 @@ package com.steftmax.temol.screen;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ScreenAdapter;
@@ -18,10 +19,13 @@ import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.component.PositionComponent;
 import com.steftmax.temol.component.VelocityComponent;
+import com.steftmax.temol.systems.BoundsRenderer;
 import com.steftmax.temol.systems.CameraTrackingSystem;
+import com.steftmax.temol.systems.CollisionSystem;
 import com.steftmax.temol.systems.GravitySystem;
 import com.steftmax.temol.systems.MovementSystem;
 import com.steftmax.temol.systems.PlayerControllerSystem;
+import com.steftmax.temol.tool.Constants;
 
 /**
  * @author pieter3457
@@ -36,18 +40,18 @@ public class GameScreen extends ScreenAdapter {
 	private OrthographicCamera camera;
 
 	public static final float LARRYHEIGHT = 1.5f; // Meters
-	public static final float SCALE = LARRYHEIGHT / 32f;// in meters per pixel
+	public static final float SCALE = LARRYHEIGHT / 32f;// in meters per pixe
 
 	public GameScreen(Game g) {
 		this.g = g;
 
 		// -----Tiled Map-----
 		map = new TmxMapLoader().load("maps/testmap.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map, SCALE);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, Constants.SCALE);
 
 		// -----Camera-----
 		camera = new OrthographicCamera();
-		camera.zoom = SCALE / 2;
+		camera.zoom = Constants.SCALE / 2;
 		camera.update();
 
 		// -----Ashley-----
@@ -55,13 +59,22 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine = new Engine();
 
 		entityEngine.addSystem(new PlayerControllerSystem());
-		entityEngine.addSystem(new GravitySystem(new Vector2(0,-10)));
-		
+		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10)));
 		entityEngine.addSystem(new MovementSystem());
-		
-		
-		
+		entityEngine.addSystem(new CollisionSystem(map));
+
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
+
+		entityEngine.addSystem(new EntitySystem() {
+
+			public void update(float deltaTime) {
+				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+				mapRenderer.setView(camera);
+				mapRenderer.render();
+			}
+		});
+
+		entityEngine.addSystem(new BoundsRenderer(camera));
 
 		Entity ent = new Entity();
 
@@ -101,9 +114,9 @@ public class GameScreen extends ScreenAdapter {
 		// System.out.println("loop'd");
 		entityEngine.update(delta);
 
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		mapRenderer.setView(camera);
-		mapRenderer.render();
+		// Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		// mapRenderer.setView(camera);
+		// mapRenderer.render();
 	}
 
 	/*

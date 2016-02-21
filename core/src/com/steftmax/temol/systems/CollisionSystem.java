@@ -2,6 +2,7 @@ package com.steftmax.temol.systems;
 
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
@@ -25,10 +26,10 @@ public class CollisionSystem extends IteratingSystem{
 	private TiledMapTileLayer layer;
 	
 	public CollisionSystem(TiledMap map) {
-		super(null);//TODO
+		super(Family.all(PositionComponent.class, VelocityComponent.class, CollisionComponent.class).get());//TODO
 		
 		this.map = map;
-		layer = (TiledMapTileLayer) map.getLayers().get("tiles");
+		layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 1");
 	}
 
 	/* (non-Javadoc)
