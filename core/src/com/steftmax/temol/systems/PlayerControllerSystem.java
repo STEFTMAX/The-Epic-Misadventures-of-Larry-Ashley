@@ -50,24 +50,28 @@ public class PlayerControllerSystem extends IteratingSystem {
 
 			} else {
 				if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
-					// pc.body.applyForceToCenter(-10, 0, true);
-					vc.velocity.x -= MOVEACCELERATION * deltaTime;
+					if (vc.velocity.x > 0) {
+						brake(vc, deltaTime);
+					} else {
+
+						vc.velocity.x -= MOVEACCELERATION * deltaTime;
+					}
 				}
 
 				if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
-					// pc.body.applyForceToCenter(10, 0, true);
-					vc.velocity.x += MOVEACCELERATION * deltaTime;
+					if (vc.velocity.x < 0) {
+
+						brake(vc, deltaTime);
+					} else {
+
+						vc.velocity.x += MOVEACCELERATION * deltaTime;
+					}
 				}
 
 				if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
 					
-					float decrease = Math.signum(vc.velocity.x) * STANDACCELERATION * deltaTime;
+					brake(vc, deltaTime);
 					
-					if (Math.abs(decrease) > Math.abs(vc.velocity.x)) {
-						vc.velocity.x = 0;
-					} else {
-						vc.velocity.x -= decrease;
-					}
 				}
 
 				if (Math.abs(vc.velocity.x) > MAXVELOCITY) {
@@ -77,4 +81,13 @@ public class PlayerControllerSystem extends IteratingSystem {
 		}
 	}
 
+	private void brake(VelocityComponent vc, float deltaTime) {
+		float decrease = Math.signum(vc.velocity.x) * STANDACCELERATION * deltaTime;
+		
+		if (Math.abs(decrease) > Math.abs(vc.velocity.x)) {
+			vc.velocity.x = 0;
+		} else {
+			vc.velocity.x -= decrease;
+		}
+	}
 }
