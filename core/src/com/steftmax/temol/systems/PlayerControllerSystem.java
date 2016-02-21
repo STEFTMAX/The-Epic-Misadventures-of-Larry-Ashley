@@ -17,9 +17,10 @@ import com.steftmax.temol.component.VelocityComponent;
  */
 public class PlayerControllerSystem extends IteratingSystem {
 
-	private static final float MAXVELOCITY = 2f;
+	private static final float MAXVELOCITY = 4f;
 	private static final float JUMP = 4f;
-	private static final float MOVEACCELERATION = 2f;
+	private static final float MOVEACCELERATION = 4f;
+	private static final float STANDACCELERATION = 10f;
 	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
@@ -38,21 +39,9 @@ public class PlayerControllerSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-		final PositionComponent pc = pm.get(entity);
+//		final PositionComponent pc = pm.get(entity);
 		final VelocityComponent vc = vm.get(entity);
 		final GravityComponent gc = gm.get(entity);
-
-
-//		if (!gc.isGrounded) {
-//			feetFixture.setFriction(0f);
-//		} else {
-//			if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
-//				gc.groundContact.setFriction(1f); //TODO change actual values in the contact!
-//			} else {
-//				gc.groundContact.setFriction(.2f);
-//
-//			}
-//		}
 
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -68,6 +57,17 @@ public class PlayerControllerSystem extends IteratingSystem {
 				if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
 					// pc.body.applyForceToCenter(10, 0, true);
 					vc.velocity.x += MOVEACCELERATION * deltaTime;
+				}
+
+				if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+					
+					float decrease = Math.signum(vc.velocity.x) * STANDACCELERATION * deltaTime;
+					
+					if (decrease > vc.velocity.x) {
+						vc.velocity.x = 0;
+					} else {
+						vc.velocity.x -= decrease;
+					}
 				}
 
 				if (Math.abs(vc.velocity.x) > MAXVELOCITY) {

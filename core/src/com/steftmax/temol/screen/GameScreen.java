@@ -12,9 +12,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
-import com.badlogic.gdx.physics.box2d.World;
 import com.steftmax.temol.component.CameraTargetComponent;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
@@ -25,7 +22,6 @@ import com.steftmax.temol.systems.CameraTrackingSystem;
 import com.steftmax.temol.systems.GravitySystem;
 import com.steftmax.temol.systems.MovementSystem;
 import com.steftmax.temol.systems.PlayerControllerSystem;
-import com.steftmax.temol.tool.Box2DMapObjectParser;
 
 /**
  * @author pieter3457
@@ -60,13 +56,17 @@ public class GameScreen extends ScreenAdapter {
 
 		entityEngine.addSystem(new PlayerControllerSystem());
 		entityEngine.addSystem(new GravitySystem(new Vector2(0,-10)));
+		
 		entityEngine.addSystem(new MovementSystem());
+		
+		
+		
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		Entity ent = new Entity();
 
 		ent.add(new CollisionComponent(new Rectangle(0, 0, 10, 10)));
-		ent.add(new PositionComponent());
+		ent.add(new PositionComponent(5, 15));
 		ent.add(new VelocityComponent());
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
