@@ -21,7 +21,7 @@ public class PlayerControllerSystem extends IteratingSystem {
 	private static final float JUMP = 4f;
 	private static final float MOVEACCELERATION = 4f;
 	private static final float STANDACCELERATION = 10f;
-	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+//	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
 
@@ -63,7 +63,7 @@ public class PlayerControllerSystem extends IteratingSystem {
 					
 					float decrease = Math.signum(vc.velocity.x) * STANDACCELERATION * deltaTime;
 					
-					if (decrease > vc.velocity.x) {
+					if (Math.abs(decrease) > Math.abs(vc.velocity.x)) {
 						vc.velocity.x = 0;
 					} else {
 						vc.velocity.x -= decrease;
