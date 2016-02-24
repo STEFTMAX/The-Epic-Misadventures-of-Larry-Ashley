@@ -78,7 +78,7 @@ public class GameScreen extends ScreenAdapter {
 
 		Entity ent = new Entity();
 
-		ent.add(new CollisionComponent(new Rectangle(0, 0, 10, 10)));
+		ent.add(new CollisionComponent(new Rectangle(0, 0, 2, 2)));
 		ent.add(new PositionComponent(5, 15));
 		ent.add(new VelocityComponent());
 		ent.add(new CameraTargetComponent());

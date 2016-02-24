@@ -10,7 +10,7 @@ import com.steftmax.temol.component.VelocityComponent;
 
 /**
  * @author pieter3457
- *
+ *	TODO merge this with collsionsystem into PhysicsSystem
  */
 public class MovementSystem extends IteratingSystem {
 
@@ -32,7 +32,8 @@ public class MovementSystem extends IteratingSystem {
 	protected void processEntity(Entity entity, float deltaTime) {
 
 		final Vector2 velocity = vm.get(entity).velocity;
-
+		final PositionComponent pc = pm.get(entity);
+		pc.lastPosition.set(pc.position);
 		pm.get(entity).position.add(velocity.x * deltaTime, velocity.y * deltaTime);
 	}
 }
