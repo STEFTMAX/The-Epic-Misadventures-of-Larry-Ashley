@@ -1,10 +1,8 @@
 package com.steftmax.temol.systems;
 
 import com.badlogic.ashley.core.EntitySystem;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
-import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Interpolation;
 
@@ -15,11 +13,11 @@ import com.badlogic.gdx.math.Interpolation;
 public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 
 	private float minZoom, maxZoom, zoomSpeed, zoomFadeTime;
-	private float startZoom, endZoom, desiredZoom;
+	private float startZoom, endZoom, actualZoom;
 	private float timeZooming = 0f;
 	private boolean upIn;
 	private OrthographicCamera cam;
-	private boolean zooming = true;
+//	private boolean zooming = true;
 
 	public CameraZoomSystem(InputMultiplexer im, OrthographicCamera cam, float minZoom, float maxZoom, float zoomSpeed,
 			float zoomFadeTime, boolean upIn) {
@@ -32,6 +30,7 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 		this.zoomSpeed = zoomSpeed;
 		this.upIn = upIn;
 		this.zoomFadeTime = zoomFadeTime;
+		this.actualZoom = this.startZoom = this.endZoom = cam.zoom;
 	}
 
 	/*
@@ -41,18 +40,15 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	 */
 	@Override
 	public void update(float deltaTime) {
-		if (zooming) {
-			timeZooming += deltaTime / zoomFadeTime;
-			desiredZoom = Interpolation.fade.apply(startZoom, endZoom, timeZooming);
 
-		}
-		if (timeZooming > 1f) {
-			timeZooming = 0f;
-			zooming = false;
-		}
-		float zoomSpeed = desiredZoom - cam.zoom;
-		cam.zoom += zoomSpeed * deltaTime;
-		System.out.println("zoomSpeed: " + zoomSpeed);
+		timeZooming += deltaTime / zoomFadeTime;
+		timeZooming = Math.min(timeZooming, 1f);
+		actualZoom = Interpolation.linear.apply(startZoom, endZoom, timeZooming);
+		
+		cam.zoom = actualZoom;
+		
+		
+
 	}
 
 	/*
@@ -61,26 +57,19 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	 * @see com.badlogic.gdx.InputProcessor#scrolled(int)
 	 */
 	@Override
-	public boolean scrolled(int amount) {
-		if (!zooming) {
-			zooming = true;
-		} else {
-			timeZooming = .5f;
-		}
-		startZoom = cam.zoom;
+	public synchronized boolean scrolled(int amount) {
+		timeZooming = 0f;
+		startZoom = actualZoom;
+		
 		if (upIn) {
-			endZoom += amount * zoomSpeed * endZoom;
+			endZoom += amount * zoomSpeed;
 		} else {
-			endZoom -= amount * zoomSpeed * endZoom;
+			endZoom -= amount * zoomSpeed;
 		}
+		
 
-		if (endZoom > maxZoom) {
-			endZoom = maxZoom;
-		}
-
-		if (endZoom < minZoom) {
-			endZoom = minZoom;
-		}
+		endZoom = Math.max(endZoom, minZoom);
+		endZoom = Math.min(endZoom, maxZoom);
 
 		return true;
 	}
