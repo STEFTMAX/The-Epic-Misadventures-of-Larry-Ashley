@@ -80,7 +80,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new PlayerControllerSystem());
 		entityEngine.addSystem(new WorldSystem(w, 1f / 60f, 6, 2));
 		entityEngine.addSystem(new GroundedSystem(w));
-		entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE, .3f, true));
+		entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE, .3f, 1f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		Entity ent = new Entity();
