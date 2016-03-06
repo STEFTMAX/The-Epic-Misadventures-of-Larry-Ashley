@@ -6,6 +6,7 @@ import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.Interpolation;
 
 /**
  * @author pieter3457
@@ -13,12 +14,15 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
  */
 public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 
-	private float minZoom, maxZoom, zoomSpeed;
+	private float minZoom, maxZoom, zoomSpeed, zoomFadeSpeed;
+	private float startZoom, endZoom;
+	private float timeZooming = 0f;
 	private boolean upIn;
 	private OrthographicCamera cam;
+	private boolean zooming = true;
 
 	public CameraZoomSystem(InputMultiplexer im, OrthographicCamera cam, float minZoom, float maxZoom, float zoomSpeed,
-			boolean upIn) {
+			float zoomFadeSpeed, boolean upIn) {
 
 		im.addProcessor(this);
 
@@ -27,6 +31,25 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 		this.maxZoom = maxZoom;
 		this.zoomSpeed = zoomSpeed;
 		this.upIn = upIn;
+		this.zoomFadeSpeed = zoomFadeSpeed;
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see com.badlogic.ashley.core.EntitySystem#update(float)
+	 */
+	@Override
+	public void update(float deltaTime) {
+		if (zooming) {
+			timeZooming += deltaTime;
+			cam.zoom = Interpolation.linear.apply(startZoom, endZoom, timeZooming);
+		}
+		if (timeZooming > 1f) {
+			timeZooming = 0f;
+			zooming = false;
+		}
+
 	}
 
 	/*
@@ -36,18 +59,34 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	 */
 	@Override
 	public boolean scrolled(int amount) {
-		if (upIn) {
-			cam.zoom += amount * zoomSpeed * cam.zoom;
+		if (zooming) {
+
+			if (upIn) {
+				startZoom -= amount * zoomSpeed;
+			} else {
+
+				startZoom += amount * zoomSpeed;
+			}
+
 		} else {
-			cam.zoom -= amount * zoomSpeed * cam.zoom;
+			timeZooming = 0f;
+			zooming = true;
+			startZoom = cam.zoom;
 		}
-		
-		if (cam.zoom > maxZoom) {
-			cam.zoom = maxZoom;
+		if (upIn) {
+			endZoom += amount * zoomSpeed;
+		} else {
+			endZoom -= amount * zoomSpeed;
 		}
-		if (cam.zoom < minZoom) {
-			cam.zoom = minZoom;
+
+		if (endZoom > maxZoom) {
+			endZoom = maxZoom;
 		}
+
+		if (endZoom < minZoom) {
+			endZoom = minZoom;
+		}
+
 		return true;
 	}
 
