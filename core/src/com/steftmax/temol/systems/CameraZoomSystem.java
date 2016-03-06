@@ -37,9 +37,9 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	@Override
 	public boolean scrolled(int amount) {
 		if (upIn) {
-			cam.zoom += amount * zoomSpeed;
+			cam.zoom += amount * zoomSpeed * cam.zoom;
 		} else {
-			cam.zoom -= amount * zoomSpeed;
+			cam.zoom -= amount * zoomSpeed * cam.zoom;
 		}
 		
 		if (cam.zoom > maxZoom) {
