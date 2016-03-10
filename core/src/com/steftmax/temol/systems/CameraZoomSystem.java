@@ -1,6 +1,7 @@
 package com.steftmax.temol.systems;
 
 import com.badlogic.ashley.core.EntitySystem;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -17,7 +18,7 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	private float timeZooming = 0f;
 	private boolean upIn;
 	private OrthographicCamera cam;
-//	private boolean zooming = true;
+	// private boolean zooming = true;
 
 	public CameraZoomSystem(InputMultiplexer im, OrthographicCamera cam, float minZoom, float maxZoom, float zoomSpeed,
 			float zoomFadeTime, boolean upIn) {
@@ -44,11 +45,8 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 		timeZooming += deltaTime / zoomFadeTime;
 		timeZooming = Math.min(timeZooming, 1f);
 		actualZoom = Interpolation.linear.apply(startZoom, endZoom, timeZooming);
-		
-		cam.zoom = actualZoom;
-		
-		
 
+		cam.zoom = (float) (actualZoom / Math.pow(getDisplayScale(),.5d));
 	}
 
 	/*
@@ -60,18 +58,25 @@ public class CameraZoomSystem extends EntitySystem implements InputProcessor {
 	public synchronized boolean scrolled(int amount) {
 		timeZooming = 0f;
 		startZoom = actualZoom;
-		
+
 		if (upIn) {
 			endZoom += amount * zoomSpeed;
 		} else {
-			endZoom -= amount * zoomSpeed;
+			endZoom += amount * zoomSpeed;
 		}
-		
 
 		endZoom = Math.max(endZoom, minZoom);
 		endZoom = Math.min(endZoom, maxZoom);
 
 		return true;
+	}
+
+	
+
+
+	float getDisplayScale() {
+		float returnance = (Gdx.graphics.getHeight() * Gdx.graphics.getWidth()) / (1080f * 1920f);
+		return returnance;
 	}
 
 	@Override

@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
@@ -61,8 +62,16 @@ public class GameScreen extends ScreenAdapter {
 
 		// -----Tiled Map-----
 		map = new TmxMapLoader().load("maps/testmap.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map, SCALE);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, SCALE);  
+		MapProperties prop = map.getProperties();
 
+		int mapWidth = prop.get("width", Integer.class);
+		int mapHeight = prop.get("height", Integer.class);
+		int tilePixelWidth = prop.get("tilewidth", Integer.class);
+		int tilePixelHeight = prop.get("tileheight", Integer.class);
+
+		int mapPixelWidth = mapWidth * tilePixelWidth;
+		int mapPixelHeight = mapHeight * tilePixelHeight;
 		// -----Box2D-----
 		w = new World(new Vector2(0, -9.81f), true);
 		new Box2DMapObjectParser(SCALE).load(w, map);
@@ -80,7 +89,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new PlayerControllerSystem());
 		entityEngine.addSystem(new WorldSystem(w, 1f / 60f, 6, 2));
 		entityEngine.addSystem(new GroundedSystem(w));
-		entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE, .008f, .19f, true));
+		entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE /2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		Entity ent = new Entity();
@@ -100,7 +109,7 @@ public class GameScreen extends ScreenAdapter {
 
 		entityEngine.addEntity(ent);
 
-		para = new Parrallaxer(camera, SCALE * 4);
+		para = new Parrallaxer(camera,SCALE*4, mapPixelWidth,mapPixelHeight);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer2.png")), .5f);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer3.png")), .75f);
