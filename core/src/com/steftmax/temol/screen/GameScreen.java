@@ -2,6 +2,7 @@ package com.steftmax.temol.screen;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
@@ -15,6 +16,7 @@ import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -25,6 +27,14 @@ import com.steftmax.temol.component.GroundedComponent;
 import com.steftmax.temol.component.PhysicsDefComponent;
 import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.gfx.parrallax.Parrallaxer;
+import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.VelocityComponent;
+import com.steftmax.temol.systems.BoundsRenderer;
+import com.steftmax.temol.systems.CameraTrackingSystem;
+import com.steftmax.temol.systems.CollisionSystem;
+import com.steftmax.temol.systems.GravitySystem;
+import com.steftmax.temol.systems.MovementSystem;
+import com.steftmax.temol.systems.PlayerControllerSystem;
 import com.steftmax.temol.systems.CameraTrackingSystem;
 import com.steftmax.temol.systems.CameraZoomSystem;
 import com.steftmax.temol.systems.GroundedSystem;
@@ -33,6 +43,7 @@ import com.steftmax.temol.systems.WorldSystem;
 import com.steftmax.temol.tool.Box2DMapObjectParser;
 import com.steftmax.temol.tool.ChainableBodyDef;
 import com.steftmax.temol.tool.ChainableFixtureDef;
+import com.steftmax.temol.tool.Constants;
 
 /**
  * @author pieter3457
@@ -45,11 +56,9 @@ public class GameScreen extends ScreenAdapter {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private OrthographicCamera camera;
-	private Box2DDebugRenderer b2dr;
-	private World w;
 
 	public static final float LARRYHEIGHT = 1.5f; // Meters
-	public static final float SCALE = LARRYHEIGHT / 32f;// in meters per pixel
+	public static final float SCALE = LARRYHEIGHT / 32f;// in meters per pixe
 
 	private SpriteBatch batch = new SpriteBatch(10);
 
@@ -87,25 +96,22 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine = new Engine();
 
 		entityEngine.addSystem(new PlayerControllerSystem());
-		entityEngine.addSystem(new WorldSystem(w, 1f / 60f, 6, 2));
-		entityEngine.addSystem(new GroundedSystem(w));
+		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10)));
+		entityEngine.addSystem(new MovementSystem());
+		entityEngine.addSystem(new CollisionSystem(map));
+
 		entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE /2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		Entity ent = new Entity();
 
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(.4f, LARRYHEIGHT / 2);
 
-		// final float sensorHeight = .1f / 2f;
-		// PolygonShape sensor = new PolygonShape();
-		// sensor.setAsBox(.4f, sensorHeight, new Vector2(0f, -.8f -
-		// sensorHeight), 0);
-
-		ent.add(new PhysicsDefComponent(
-				new ChainableBodyDef().setFixedRotation(true).setPosition(10, 16).setType(BodyType.DynamicBody),
-				new ChainableFixtureDef().setShape(shape).setDensity(1))).add(new PlayerComponent())
-				.add(new CameraTargetComponent()).add(new GroundedComponent(0, LARRYHEIGHT / -2f));
+		ent.add(new CollisionComponent(new Rectangle(0, 0, 2, 2)));
+		ent.add(new PositionComponent(5, 15));
+		ent.add(new VelocityComponent());
+		ent.add(new CameraTargetComponent());
+		ent.add(new GravityComponent());
+		ent.add(new PlayerComponent());
 
 		entityEngine.addEntity(ent);
 
@@ -151,7 +157,6 @@ public class GameScreen extends ScreenAdapter {
 		batch.end();
 		// mapRenderer.setView(camera);
 		// mapRenderer.render();
-		b2dr.render(w, camera.combined);
 	}
 
 	/*

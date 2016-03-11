@@ -5,20 +5,26 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
-import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.VelocityComponent;
 
 /**
  * @author pieter3457
- *	TODO merge this with collsionsystem into PhysicsSystem
  */
-public class MovementSystem extends IteratingSystem {
+public class GravitySystem extends IteratingSystem {
 
-	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<GravityComponent> sm = ComponentMapper.getFor(GravityComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 
-	public MovementSystem() {
-		super(Family.all(PositionComponent.class, VelocityComponent.class).get());
+	private Vector2 gravity;
+
+	public GravitySystem(Vector2 gravity) {
+		super(Family.all(GravityComponent.class, VelocityComponent.class).get());
+		this.gravity = gravity;
+	}
+
+	public void setGravity(Vector2 gravity) {
+		this.gravity = gravity;
 	}
 
 	/*
@@ -31,9 +37,11 @@ public class MovementSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-		final Vector2 velocity = vm.get(entity).velocity;
-		final PositionComponent pc = pm.get(entity);
-		pc.lastPosition.set(pc.position);
-		pm.get(entity).position.add(velocity.x * deltaTime, velocity.y * deltaTime);
+		final GravityComponent sc = sm.get(entity);
+
+		if (!sc.isGrounded) {
+			vm.get(entity).velocity.mulAdd(gravity, deltaTime);
+		}
+		// System.out.println("State " + sc.state.name());
 	}
 }
