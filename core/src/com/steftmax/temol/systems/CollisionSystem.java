@@ -16,7 +16,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
-import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.tool.Constants;
 
@@ -26,7 +26,7 @@ import com.steftmax.temol.tool.Constants;
  */
 public class CollisionSystem extends IteratingSystem {
 
-	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<TransformComponent> pm = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<CollisionComponent> bm = ComponentMapper.getFor(CollisionComponent.class);
 	private ComponentMapper<GravityComponent> gc = ComponentMapper.getFor(GravityComponent.class);
@@ -35,7 +35,7 @@ public class CollisionSystem extends IteratingSystem {
 	private TiledMapTileLayer layer;
 
 	public CollisionSystem(TiledMap map) {
-		super(Family.all(PositionComponent.class, VelocityComponent.class, CollisionComponent.class).get());// TODO
+		super(Family.all(TransformComponent.class, VelocityComponent.class, CollisionComponent.class).get());// TODO
 
 		this.map = map;
 		layer = (TiledMapTileLayer) map.getLayers().get("Tile Layer 1");
@@ -141,7 +141,7 @@ public class CollisionSystem extends IteratingSystem {
 		final Vector2 position = pm.get(entity).position;
 		final Vector2 velocity = vm.get(entity).velocity;
 
-		bounds.setCenter(position);// Sync bounds position beforehand...
+		bounds.setPosition(position);// Sync bounds position beforehand...
 
 		final float tileWidth = layer.getTileWidth();
 		final float tileHeight = layer.getTileHeight();
@@ -226,7 +226,7 @@ System.out.println("Xpen" + Xpenetration + "Ypen" + Ypenetration);
 			}
 		}
 
-		bounds.setCenter(position);// ...and sync afterwards
+		bounds.setPosition(position);// ...and sync afterwards
 	}
 
 }

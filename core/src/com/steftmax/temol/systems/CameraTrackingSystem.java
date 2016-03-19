@@ -7,7 +7,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.Camera;
 import com.badlogic.gdx.math.Vector2;
 import com.steftmax.temol.component.CameraTargetComponent;
-import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.TransformComponent;
 
 /**
  * @author pieter3457
@@ -16,7 +16,7 @@ import com.steftmax.temol.component.PositionComponent;
 public class CameraTrackingSystem extends IteratingSystem {
 
 	private Camera camera;
-	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<TransformComponent> pm = ComponentMapper.getFor(TransformComponent.class);
 	private boolean updateCam;
 
 	public CameraTrackingSystem(Camera camera) {
@@ -24,7 +24,7 @@ public class CameraTrackingSystem extends IteratingSystem {
 	}
 
 	public CameraTrackingSystem(Camera camera, boolean updateCam) {
-		super(Family.one(CameraTargetComponent.class, PositionComponent.class).get());
+		super(Family.one(CameraTargetComponent.class, TransformComponent.class).get());
 		this.camera = camera;
 		this.updateCam = updateCam;
 	}

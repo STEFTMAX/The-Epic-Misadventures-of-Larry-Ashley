@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
-import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 
 /**
@@ -14,11 +14,11 @@ import com.steftmax.temol.component.VelocityComponent;
  */
 public class MovementSystem extends IteratingSystem {
 
-	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<TransformComponent> pm = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 
 	public MovementSystem() {
-		super(Family.all(PositionComponent.class, VelocityComponent.class).get());
+		super(Family.all(TransformComponent.class, VelocityComponent.class).get());
 	}
 
 	/*
@@ -32,8 +32,8 @@ public class MovementSystem extends IteratingSystem {
 	protected void processEntity(Entity entity, float deltaTime) {
 
 		final Vector2 velocity = vm.get(entity).velocity;
-		final PositionComponent pc = pm.get(entity);
-		pc.lastPosition.set(pc.position);
+		final TransformComponent pc = pm.get(entity);
+//		pc.lastPosition.set(pc.position); TODO last positioning
 		pm.get(entity).position.add(velocity.x * deltaTime, velocity.y * deltaTime);
 	}
 }

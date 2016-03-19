@@ -22,7 +22,9 @@ import com.steftmax.temol.component.CameraTargetComponent;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
-import com.steftmax.temol.component.PositionComponent;
+import com.steftmax.temol.component.TransformComponent;
+import com.steftmax.temol.component.RenderableComponent;
+import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.gfx.parrallax.Parrallaxer;
 import com.steftmax.temol.systems.CameraTrackingSystem;
@@ -32,6 +34,8 @@ import com.steftmax.temol.systems.DebugRenderSystem;
 import com.steftmax.temol.systems.GravitySystem;
 import com.steftmax.temol.systems.MovementSystem;
 import com.steftmax.temol.systems.PlayerControllerSystem;
+import com.steftmax.temol.systems.RenderSystem;
+import com.steftmax.temol.systems.TransformSystem;
 
 /**
  * @author pieter3457
@@ -82,6 +86,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new PlayerControllerSystem());
 		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10)));
 		entityEngine.addSystem(new MovementSystem());
+		entityEngine.addSystem(new TransformSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
 
 		entityEngine
@@ -89,7 +94,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		entityEngine.addSystem(new EntitySystem() {
-			
+
 			@Override
 			public void update(float deltaTime) {
 
@@ -103,17 +108,19 @@ public class GameScreen extends ScreenAdapter {
 				super.update(deltaTime);
 			}
 		});
+
 		entityEngine.addSystem(new DebugRenderSystem(camera));
+		entityEngine.addSystem(new RenderSystem(camera, SCALE));
 
 		Entity ent = new Entity();
 
 		ent.add(new CollisionComponent(new Rectangle(0, 0, 2, 2)));
-		ent.add(new PositionComponent(5, 15));
 		ent.add(new VelocityComponent());
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
-	
+		ent.add(new TransformComponent(5f, 15f));
+		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
 
 		entityEngine.addEntity(ent);
 
@@ -151,7 +158,6 @@ public class GameScreen extends ScreenAdapter {
 		// da updating
 		// System.out.println("loop'd");
 		entityEngine.update(delta);
-
 
 	}
 
