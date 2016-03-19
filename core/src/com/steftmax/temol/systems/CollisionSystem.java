@@ -53,31 +53,37 @@ public class CollisionSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-		final Rectangle bounds = bm.get(entity).bounds;
+		solveCollision(entity);
 
-		
-		final Vector2 position = pm.get(entity).position;
-		final Vector2 velocity = vm.get(entity).velocity;
-		bounds.setCenter(position);// Sync bounds position beforehand...
-
-		Set<Cell> cells = getCollidingCells(bounds);
-
-		
-		for (Cell cell : cells) {
-
-			if (!cell.getTile().getProperties().containsKey("decoration")) {
-				position.set(pm.get(entity).lastPosition);
-				velocity.set(0f,0f);
-				GravityComponent g = gc.get(entity);
-				if (g != null) {
-					System.out.println("grounded");
-					g.isGrounded = true;
-				}
-			}
-			
-		}
-
-		bounds.setCenter(position);// ...and sync afterwards
+		// final Rectangle bounds = bm.get(entity).bounds;
+		//
+		//
+		// final Vector2 position = pm.get(entity).position;
+		// final Vector2 velocity = vm.get(entity).velocity;
+		// bounds.setCenter(position);// Sync bounds position beforehand...
+		//
+		// Set<Cell> cells = getCollidingCells(bounds);
+		//
+		//
+		// for (Cell cell : cells) {
+		//
+		// if (!cell.getTile().getProperties().containsKey("decoration")) {
+		//
+		// position.set(pm.get(entity).lastPosition);
+		// velocity.set(0f,0f);
+		// GravityComponent g = gc.get(entity);
+		// if (g != null) {
+		// System.out.println("grounded");
+		// g.isGrounded = true;
+		// }
+		//
+		//
+		//
+		// }
+		//
+		// }
+		//
+		// bounds.setCenter(position);// ...and sync afterwards
 	}
 
 	/**
@@ -87,6 +93,7 @@ public class CollisionSystem extends IteratingSystem {
 	private Set<Cell> getCollidingCells(Rectangle bounds) {
 
 		final Set<Cell> cells = new HashSet<Cell>();
+		final Set<Rectangle> rectangles = new HashSet<Rectangle>();
 
 		final float tileWidth = layer.getTileWidth();
 		final float tileHeight = layer.getTileHeight();
@@ -103,16 +110,123 @@ public class CollisionSystem extends IteratingSystem {
 		for (int x = 0; x <= ixb - ixa; x++) {
 			for (int y = 0; y <= iyb - iya; y++) {
 
-				if (layer.getCell(x + ixa, y + iya) != null)
-					cells.add(layer.getCell(x + ixa, y + iya));
+				// if (layer.getCell(x + ixa, y + iya) != null)
+				// cells.add(layer.getCell(x + ixa, y + iya));
 
-//				System.out.println("x" + (x + ixa) + "y" + (y + iya));
-				
+				final Cell currentCell = layer.getCell(x + ixa, y + iya);
+				if (currentCell != null) {
+
+					final float cellPositionAX = (x + ixa) * tileHeight * Constants.PIXELSTOMETERS;
+					final float cellPositionAY = (y + iya) * tileHeight * Constants.PIXELSTOMETERS;
+
+					Rectangle cellBounds = new Rectangle(cellPositionAX, cellPositionAY,
+							tileWidth * Constants.PIXELSTOMETERS, tileHeight * Constants.PIXELSTOMETERS);
+					if (cellBounds.overlaps(bounds)) {
+						rectangles.add(cellBounds);
+					}
+
+				}
+
 			}
 		}
 
 		return cells;
 
+	}
+
+	private void solveCollision(Entity entity) {
+
+		final Rectangle bounds = bm.get(entity).bounds;
+
+		final Vector2 position = pm.get(entity).position;
+		final Vector2 velocity = vm.get(entity).velocity;
+
+		bounds.setCenter(position);// Sync bounds position beforehand...
+
+		final float tileWidth = layer.getTileWidth();
+		final float tileHeight = layer.getTileHeight();
+
+		final int ixa = (int) (bounds.x * Constants.METERSTOPIXELS / tileWidth);
+		final int ixb = (int) ((bounds.x + bounds.width) * Constants.METERSTOPIXELS / tileWidth);
+
+		final int iya = (int) (bounds.y * Constants.METERSTOPIXELS / tileHeight);
+		final int iyb = (int) ((bounds.y + bounds.height) * Constants.METERSTOPIXELS / tileHeight);
+
+		for (int x = 0; x <= ixb - ixa; x++) {
+			for (int y = 0; y <= iyb - iya; y++) {
+
+				final Cell currentCell = layer.getCell(x + ixa, y + iya);
+				if (currentCell != null) {
+
+					final float cellPositionAX = (x + ixa) * tileHeight * Constants.PIXELSTOMETERS;
+					final float cellPositionAY = (y + iya) * tileHeight * Constants.PIXELSTOMETERS;
+
+					Rectangle cellBounds = Rectangle.tmp.set(cellPositionAX, cellPositionAY,
+							tileWidth * Constants.PIXELSTOMETERS, tileHeight * Constants.PIXELSTOMETERS);
+
+					if (cellBounds.overlaps(bounds)) {/// actual collision
+
+						float Xpenetration = ((cellBounds.width / 2 + bounds.width / 2)
+								- (bounds.width / 2 + bounds.x - (cellBounds.width / 2 + cellBounds.x)));
+
+						float Ypenetration = ((cellBounds.height / 2 + bounds.height / 2)
+								- (bounds.height / 2 + bounds.y - (cellBounds.height / 2 + cellBounds.y)));
+System.out.println("Xpen" + Xpenetration + "Ypen" + Ypenetration);
+						float deltaTimeForX = Float.MIN_VALUE;
+
+						if (velocity.x > 0f) {
+							deltaTimeForX = (cellBounds.x - (bounds.x + bounds.width)) / velocity.x;
+						} else if (velocity.x < 0f) {
+							deltaTimeForX = ((cellBounds.x + cellBounds.width) - bounds.x) / velocity.x;
+						}
+
+						float deltaTimeForY = Float.MIN_VALUE;
+
+						if (velocity.y > 0f) {
+							deltaTimeForY = (cellBounds.y - (bounds.y + bounds.height)) / velocity.y;
+						} else if (velocity.y < 0f) {
+							deltaTimeForY = ((cellBounds.y + cellBounds.height) - bounds.y) / velocity.y;
+						}
+
+						System.out.println("deltaX: " + deltaTimeForX + " deltaY: " + deltaTimeForY);
+
+						boolean corrected = false;
+						if (deltaTimeForX < 0f) {
+							GravityComponent g = gc.get(entity);
+							if (g != null) {
+								// System.out.println("grounded");
+								g.isGrounded = true;
+							}
+							position.x += velocity.x * deltaTimeForX;
+							velocity.x = 0f;
+							corrected = true;
+						}
+
+						if (deltaTimeForY < 0f) {
+							GravityComponent g = gc.get(entity);
+							if (g != null) {
+								// System.out.println("grounded");
+								g.isGrounded = true;
+							}
+							position.y += velocity.y * deltaTimeForY;
+							velocity.y = 0f;
+							corrected = true;
+						}
+
+						if (corrected)
+							return;
+					}
+
+					// position.set(pm.get(entity).lastPosition);
+					// velocity.set(0f, 0f);
+					//
+
+				}
+
+			}
+		}
+
+		bounds.setCenter(position);// ...and sync afterwards
 	}
 
 }
