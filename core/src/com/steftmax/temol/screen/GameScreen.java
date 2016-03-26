@@ -7,9 +7,12 @@ import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.ScreenAdapter;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.PixmapPacker;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.MapProperties;
@@ -18,6 +21,7 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.steftmax.temol.component.CameraTargetComponent;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
@@ -36,6 +40,9 @@ import com.steftmax.temol.systems.MovementSystem;
 import com.steftmax.temol.systems.PlayerControllerSystem;
 import com.steftmax.temol.systems.RenderSystem;
 import com.steftmax.temol.systems.TransformSystem;
+import com.steftmax.temol.tool.PixelArtScaler;
+
+import sun.net.www.content.text.plain;
 
 /**
  * @author pieter3457
@@ -59,11 +66,12 @@ public class GameScreen extends ScreenAdapter {
 	private InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
 	public GameScreen(Game g) {
+		
 		this.g = g;
 
 		// -----Tiled Map-----
 		map = new TmxMapLoader().load("maps/testmap.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map, SCALE);
+		mapRenderer = new OrthogonalTiledMapRenderer(map,SCALE);
 		MapProperties prop = map.getProperties();
 
 		int mapWidth = prop.get("width", Integer.class);
@@ -74,11 +82,10 @@ public class GameScreen extends ScreenAdapter {
 		int mapPixelWidth = mapWidth * tilePixelWidth;
 		int mapPixelHeight = mapHeight * tilePixelHeight;
 
-		// -----Camera-----
+		// -----Camera & Viewport-----
 		camera = new OrthographicCamera();
 		camera.zoom = SCALE / 2;
 		camera.update();
-
 		// -----Ashley-----
 
 		entityEngine = new Engine();
@@ -119,7 +126,9 @@ public class GameScreen extends ScreenAdapter {
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
-		ent.add(new TransformComponent(5f, 15f));
+		TransformComponent trnsfrm = new TransformComponent(5f,15f);
+		trnsfrm.origin.set(0,0);
+		ent.add(trnsfrm);
 		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
 
 		entityEngine.addEntity(ent);
@@ -143,7 +152,6 @@ public class GameScreen extends ScreenAdapter {
 	public void resize(int width, int height) {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
-
 		camera.update();
 	}
 

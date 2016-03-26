@@ -7,8 +7,6 @@ import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -16,6 +14,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
+import com.steftmax.temol.component.RenderableComponent;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.tool.Constants;
@@ -30,6 +29,7 @@ public class CollisionSystem extends IteratingSystem {
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<CollisionComponent> bm = ComponentMapper.getFor(CollisionComponent.class);
 	private ComponentMapper<GravityComponent> gc = ComponentMapper.getFor(GravityComponent.class);
+	private ComponentMapper<RenderableComponent> rm = ComponentMapper.getFor(RenderableComponent.class);
 
 	private TiledMap map;
 	private TiledMapTileLayer layer;
@@ -48,11 +48,20 @@ public class CollisionSystem extends IteratingSystem {
 	 * com.badlogic.ashley.systems.IteratingSystem#processEntity(com.badlogic.
 	 * ashley.core.Entity, float)
 	 */
-	TextureRegion test = new TextureRegion(new Texture("unnamed.png"));
+
+	private void setBoundsPosition(CollisionComponent cc, TransformComponent tc) {
+		cc.bounds.setPosition(tc.position.x - tc.origin.x, tc.position.y - tc.origin.y);
+	}
+
+	private void updateBounds(CollisionComponent cc, RenderableComponent rc) {
+		cc.bounds.setSize(rc.region.getRegionWidth() * Constants.PIXELSTOMETERS,
+				rc.region.getRegionHeight() * Constants.PIXELSTOMETERS);
+	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-
+		
+		updateBounds(bm.get(entity), rm.get(entity));
 		solveCollision(entity);
 
 		// final Rectangle bounds = bm.get(entity).bounds;
@@ -171,7 +180,7 @@ public class CollisionSystem extends IteratingSystem {
 
 						float Ypenetration = ((cellBounds.height / 2 + bounds.height / 2)
 								- (bounds.height / 2 + bounds.y - (cellBounds.height / 2 + cellBounds.y)));
-System.out.println("Xpen" + Xpenetration + "Ypen" + Ypenetration);
+						System.out.println("Xpen" + Xpenetration + "Ypen" + Ypenetration);
 						float deltaTimeForX = Float.MIN_VALUE;
 
 						if (velocity.x > 0f) {

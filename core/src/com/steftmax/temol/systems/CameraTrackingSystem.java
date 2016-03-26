@@ -39,9 +39,9 @@ public class CameraTrackingSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-		Vector2 pos = pm.get(entity).position;
+		TransformComponent tc = pm.get(entity);
 
-		camera.position.set(pos.x, pos.y, 0f);
+		camera.position.set(tc.origin.x + tc.position.x, tc.origin.y + tc.position.y, 0f);
 
 		if (updateCam)
 			camera.update();

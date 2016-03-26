@@ -28,7 +28,11 @@ public class TransformSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		final TransformComponent tc = tm.get(entity);
-		tc.transform.idt().translate(tc.origin).scale(tc.scale).rotateRad(tc.rotation)
-				.translate(-tc.origin.x + tc.position.x, -tc.origin.y + tc.position.y);
+		tc.transform.setToTrnRotRadScl(tc.position.x, tc.position.y - tc.origin.y, tc.rotation,
+				tc.scale.x, tc.scale.y).translate(-tc.origin.x,- tc.origin.y);
+		// tc.transform.idt().preTranslate(-tc.origin.x,
+		// -tc.origin.y).preScale(tc.scale).preRotateRad(tc.rotation)
+		// .preTranslate(tc.origin.x + tc.position.x, tc.origin.y +
+		// tc.position.y);
 	}
 }
