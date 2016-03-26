@@ -30,6 +30,7 @@ import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.RenderableComponent;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
+import com.steftmax.temol.component.WeldComponent;
 import com.steftmax.temol.gfx.parrallax.Parrallaxer;
 import com.steftmax.temol.systems.CameraTrackingSystem;
 import com.steftmax.temol.systems.CameraZoomSystem;
@@ -40,6 +41,7 @@ import com.steftmax.temol.systems.MovementSystem;
 import com.steftmax.temol.systems.PlayerControllerSystem;
 import com.steftmax.temol.systems.RenderSystem;
 import com.steftmax.temol.systems.TransformSystem;
+import com.steftmax.temol.systems.WeldSystem;
 import com.steftmax.temol.tool.PixelArtScaler;
 
 import sun.net.www.content.text.plain;
@@ -94,6 +96,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10)));
 		entityEngine.addSystem(new MovementSystem());
 		entityEngine.addSystem(new TransformSystem());
+		entityEngine.addSystem(new WeldSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
 
 		entityEngine
@@ -133,6 +136,15 @@ public class GameScreen extends ScreenAdapter {
 
 		entityEngine.addEntity(ent);
 
+		Entity ent2 = new Entity();
+		ent2.add(new TransformComponent(0, 0));
+		ent2.add(new WeldComponent(ent, 1, 0));
+		ent2.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
+		
+		entityEngine.addEntity(ent2);
+		
+		
+		
 		para = new Parrallaxer(camera, SCALE * 4, mapPixelWidth, mapPixelHeight);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer2.png")), .5f);
