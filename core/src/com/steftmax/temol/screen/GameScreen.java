@@ -42,7 +42,9 @@ import com.steftmax.temol.systems.PlayerControllerSystem;
 import com.steftmax.temol.systems.RenderSystem;
 import com.steftmax.temol.systems.TransformSystem;
 import com.steftmax.temol.systems.WeldSystem;
+import com.steftmax.temol.tool.Constants;
 import com.steftmax.temol.tool.PixelArtScaler;
+import com.sun.corba.se.impl.orbutil.closure.Constant;
 
 import sun.net.www.content.text.plain;
 
@@ -57,10 +59,7 @@ public class GameScreen extends ScreenAdapter {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private OrthographicCamera camera;
-
-	public static final float LARRYHEIGHT = 1.5f; // Meters
-	public static final float SCALE = LARRYHEIGHT / 32f;// in meters per pixe
-
+	
 	private SpriteBatch batch = new SpriteBatch(10);
 
 	private Parrallaxer para;
@@ -68,12 +67,12 @@ public class GameScreen extends ScreenAdapter {
 	private InputMultiplexer inputMultiplexer = new InputMultiplexer();
 
 	public GameScreen(Game g) {
-		
+
 		this.g = g;
 
 		// -----Tiled Map-----
 		map = new TmxMapLoader().load("maps/testmap.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map,SCALE);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, Constants.SCALE);
 		MapProperties prop = map.getProperties();
 
 		int mapWidth = prop.get("width", Integer.class);
@@ -86,7 +85,7 @@ public class GameScreen extends ScreenAdapter {
 
 		// -----Camera & Viewport-----
 		camera = new OrthographicCamera();
-		camera.zoom = SCALE / 2;
+		camera.zoom = Constants.SCALE / 2;
 		camera.update();
 		// -----Ashley-----
 
@@ -100,7 +99,7 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new CollisionSystem(map));
 
 		entityEngine
-				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, SCALE / 5f, SCALE / 2f, .008f, .19f, true));
+				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constants.SCALE / 5f, Constants.SCALE / 2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		entityEngine.addSystem(new EntitySystem() {
@@ -120,7 +119,7 @@ public class GameScreen extends ScreenAdapter {
 		});
 
 		entityEngine.addSystem(new DebugRenderSystem(camera));
-		entityEngine.addSystem(new RenderSystem(camera, SCALE));
+		entityEngine.addSystem(new RenderSystem(camera, Constants.SCALE));
 
 		Entity ent = new Entity();
 
@@ -129,23 +128,21 @@ public class GameScreen extends ScreenAdapter {
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
-		TransformComponent trnsfrm = new TransformComponent(5f,15f);
-		trnsfrm.origin.set(0,0);
+		TransformComponent trnsfrm = new TransformComponent(5f, 15f);
+		trnsfrm.origin.set(13 * Constants.PIXELSTOMETERS, 26 * Constants.PIXELSTOMETERS);
 		ent.add(trnsfrm);
 		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
 
 		entityEngine.addEntity(ent);
 
-		Entity ent2 = new Entity();
-		ent2.add(new TransformComponent(0, 0));
-		ent2.add(new WeldComponent(ent, 1, 0));
-		ent2.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
-		
-		entityEngine.addEntity(ent2);
-		
-		
-		
-		para = new Parrallaxer(camera, SCALE * 4, mapPixelWidth, mapPixelHeight);
+//		Entity ent2 = new Entity();
+//		ent2.add(new TransformComponent(0, 0));
+//		ent2.add(new WeldComponent(ent, 1, 0));
+//		ent2.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
+//
+//		entityEngine.addEntity(ent2);
+
+		para = new Parrallaxer(camera, Constants.SCALE * 4, mapPixelWidth, mapPixelHeight);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer2.png")), .5f);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer3.png")), .75f);

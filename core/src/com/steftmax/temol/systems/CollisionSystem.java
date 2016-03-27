@@ -150,7 +150,7 @@ public class CollisionSystem extends IteratingSystem {
 		final Vector2 position = pm.get(entity).position;
 		final Vector2 velocity = vm.get(entity).velocity;
 
-		bounds.setPosition(position);// Sync bounds position beforehand...
+		setBoundsPosition(bm.get(entity), pm.get(entity));// Sync bounds position beforehand...
 
 		final float tileWidth = layer.getTileWidth();
 		final float tileHeight = layer.getTileHeight();
@@ -235,7 +235,7 @@ public class CollisionSystem extends IteratingSystem {
 			}
 		}
 
-		bounds.setPosition(position);// ...and sync afterwards
+		setBoundsPosition(bm.get(entity), pm.get(entity));// ...and sync afterwards
 	}
 
 }

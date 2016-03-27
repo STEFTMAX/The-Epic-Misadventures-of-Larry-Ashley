@@ -33,6 +33,7 @@ public class TransformSystem extends IteratingSystem {
 	protected void processEntity(Entity entity, float deltaTime) {
 		final TransformComponent tc = tm.get(entity);
 		final WeldComponent wc = wm.get(entity);
+		
 		calculateAffine2(tc.transform, tc.position, tc.origin, tc.scale, tc.rotation);
 		if (wc != null)
 			calculateAffine2(wc.transform, wc.position, wc.origin, wc.scale, wc.rotation);
@@ -40,7 +41,7 @@ public class TransformSystem extends IteratingSystem {
 
 	private void calculateAffine2(Affine2 affine2, Vector2 position, Vector2 origin, Vector2 scale, float rotation) {
 
-		affine2.setToTrnRotRadScl(position.x, position.y - origin.y, rotation, scale.x, scale.y).translate(-origin.x,
+		affine2.setToTrnRotRadScl(position.x, position.y, rotation, scale.x, scale.y).translate(-origin.x,
 				-origin.y);
 	}
 }
