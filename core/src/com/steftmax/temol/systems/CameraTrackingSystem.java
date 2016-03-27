@@ -24,11 +24,10 @@ public class CameraTrackingSystem extends IteratingSystem {
 	}
 
 	public CameraTrackingSystem(Camera camera, boolean updateCam) {
-		super(Family.one(CameraTargetComponent.class, TransformComponent.class).get());
+		super(Family.all(CameraTargetComponent.class, TransformComponent.class).get());
 		this.camera = camera;
 		this.updateCam = updateCam;
 	}
-
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -38,7 +37,7 @@ public class CameraTrackingSystem extends IteratingSystem {
 	 */
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-
+		
 		TransformComponent tc = pm.get(entity);
 
 		camera.position.set(tc.origin.x + tc.position.x, tc.origin.y + tc.position.y, 0f);
