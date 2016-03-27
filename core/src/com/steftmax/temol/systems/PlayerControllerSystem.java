@@ -17,7 +17,7 @@ import com.steftmax.temol.component.VelocityComponent;
 public class PlayerControllerSystem extends IteratingSystem {
 
 	private static final float MAXVELOCITY = 4f;
-	private static final float JUMP = 4f;
+	private static final float JUMP = 5f;
 	private static final float MOVEACCELERATION = 4f;
 	private static final float STANDACCELERATION = 20f;
 //	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
@@ -25,7 +25,7 @@ public class PlayerControllerSystem extends IteratingSystem {
 	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
 
 	public PlayerControllerSystem() {
-		super(Family.all(PlayerComponent.class, VelocityComponent.class).get());
+		super(Family.all(PlayerComponent.class, VelocityComponent.class, GravityComponent.class).get());
 	}
 
 	/*
