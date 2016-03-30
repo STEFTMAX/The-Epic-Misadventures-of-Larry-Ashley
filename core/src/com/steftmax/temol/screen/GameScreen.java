@@ -129,7 +129,7 @@ public class GameScreen extends ScreenAdapter {
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
 		TransformComponent trnsfrm = new TransformComponent(5f, 15f);
-		trnsfrm.origin.set(13 * Constants.PIXELSTOMETERS, 26 * Constants.PIXELSTOMETERS);
+		trnsfrm.origin.set(23 * .5f* Constants.PIXELSTOMETERS, 26 * Constants.PIXELSTOMETERS);
 		ent.add(trnsfrm);
 		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
 

@@ -29,11 +29,13 @@ public class TransformSystem extends IteratingSystem {
 	 * com.badlogic.ashley.systems.IteratingSystem#processEntity(com.badlogic.
 	 * ashley.core.Entity, float)
 	 */
+	
+	
+	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		final TransformComponent tc = tm.get(entity);
 		final WeldComponent wc = wm.get(entity);
-		
 		calculateAffine2(tc.transform, tc.position, tc.origin, tc.scale, tc.rotation);
 		if (wc != null)
 			calculateAffine2(wc.transform, wc.position, wc.origin, wc.scale, wc.rotation);
