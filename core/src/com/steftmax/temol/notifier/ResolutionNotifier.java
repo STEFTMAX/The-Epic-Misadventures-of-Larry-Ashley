@@ -11,7 +11,6 @@ public class ResolutionNotifier extends Notifier <ResolutionListener> {
 	public void notify(int width, int height) {
 		for (ResolutionListener l : listeners) {
 			l.resize(width, height);
-			System.out.println("yo");
 		}
 	}
 
