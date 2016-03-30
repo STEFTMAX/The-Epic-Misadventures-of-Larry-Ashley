@@ -15,11 +15,15 @@ public abstract class Notifier <T extends Listener>{
 	protected List<T> listeners = new ArrayList<T>();
 	
 	
-	public void addListeners(T... listener) {
-		listeners.addAll(listeners);
+	public void addListeners(T... listeners) {
+		for (T listener : listeners) {
+			this.listeners.add(listener);
+		}
 	}
-	public void removeListeners(T... listener) {
-		listeners.removeAll(listeners);
+	public void removeListeners(T... listeners) {
+		for (T listener : listeners) {
+			this.listeners.remove(listener);
+		}
 	}
 	public void clearListeners() {
 		listeners.clear();

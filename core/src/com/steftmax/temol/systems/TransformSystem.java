@@ -8,6 +8,7 @@ import com.badlogic.gdx.math.Affine2;
 import com.badlogic.gdx.math.Vector2;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.WeldComponent;
+import com.steftmax.temol.tool.Constants;
 
 /**
  * @author pieter3457

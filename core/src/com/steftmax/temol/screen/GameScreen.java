@@ -32,6 +32,7 @@ import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.component.WeldComponent;
 import com.steftmax.temol.gfx.parrallax.Parrallaxer;
+import com.steftmax.temol.notifier.ResolutionNotifier;
 import com.steftmax.temol.systems.CameraTrackingSystem;
 import com.steftmax.temol.systems.CameraZoomSystem;
 import com.steftmax.temol.systems.CollisionSystem;
@@ -65,6 +66,8 @@ public class GameScreen extends ScreenAdapter {
 	private Parrallaxer para;
 
 	private InputMultiplexer inputMultiplexer = new InputMultiplexer();
+	
+	ResolutionNotifier rn = new ResolutionNotifier();
 
 	public GameScreen(Game g) {
 
@@ -85,7 +88,7 @@ public class GameScreen extends ScreenAdapter {
 
 		// -----Camera & Viewport-----
 		camera = new OrthographicCamera();
-		camera.zoom = Constants.SCALE / 2;
+//		camera.zoom = Constants.SCALE / 2;
 		camera.update();
 		// -----Ashley-----
 
@@ -98,8 +101,8 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new WeldSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
 
-		entityEngine
-				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constants.SCALE / 5f, Constants.SCALE / 2f, .008f, .19f, true));
+//		entityEngine
+//				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constant.SCALE / 5f, Constants.SCALE / 2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		entityEngine.addSystem(new EntitySystem() {
@@ -108,18 +111,18 @@ public class GameScreen extends ScreenAdapter {
 			public void update(float deltaTime) {
 
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-				batch.setProjectionMatrix(camera.combined);
-				batch.begin();
-				para.draw(batch);
-				batch.end();
-				mapRenderer.setView(camera);
-				mapRenderer.render();
+				//batch.setProjectionMatrix(camera.combined);
+				//batch.begin();
+				//para.draw(batch);
+				//batch.end();
+				//mapRenderer.setView(camera);
+				//mapRenderer.render();
 				super.update(deltaTime);
 			}
 		});
 
 		entityEngine.addSystem(new DebugRenderSystem(camera));
-		entityEngine.addSystem(new RenderSystem(camera, Constants.SCALE));
+		entityEngine.addSystem(new RenderSystem(camera, Constants.SCALE, rn));
 
 		Entity ent = new Entity();
 
@@ -162,6 +165,7 @@ public class GameScreen extends ScreenAdapter {
 		camera.viewportWidth = width;
 		camera.viewportHeight = height;
 		camera.update();
+		rn.notify(width, height);
 	}
 
 	/*
