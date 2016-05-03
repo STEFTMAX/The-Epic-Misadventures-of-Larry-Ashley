@@ -43,9 +43,17 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		notifier.addListeners(this);
 		this.camera = cam;
 		this.gameScale = gameScale;
-		rotShader = new ShaderProgram(Gdx.files.internal("shader/default.vert"),
-				Gdx.files.internal("shader/default.frag"));
-		System.out.println(rotShader.getLog());
+		
+		
+		rotShader = new ShaderProgram(Gdx.files.internal("shader/scalex3rotation.vert"),
+				Gdx.files.internal("shader/scalex3rotation.frag"));
+		
+		// Shader error checking
+		if (!rotShader.isCompiled()) {
+			rotShader.begin();
+			System.out.println(rotShader.getLog());
+			rotShader.end();
+		}
 	}
 
 	/*
@@ -60,12 +68,15 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		camera.zoom = 1f;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
-		fb.begin();
 		batch.setShader(rotShader);
+		fb.begin();
 		batch.begin();
+		rotShader.setUniformi("u_textureSize", 23, 40);
+		rotShader.setUniformf("u_invTextureSize", 1f / 23, 1f / 40);
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
 		super.update(deltaTime);
 		batch.end();
 		fb.end();
@@ -109,6 +120,9 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 																	// thingy
 																	// you know
 																	// what to
+		// rotShader.begin();
+		// rotShader.setUniformi("u_resolution", width, height);
+		// rotShader.end();
 	}
 
 	private void drawToScreen() {
