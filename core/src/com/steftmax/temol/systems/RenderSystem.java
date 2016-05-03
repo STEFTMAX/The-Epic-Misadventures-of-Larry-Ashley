@@ -31,7 +31,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 
 	private final SpriteBatch batch = new SpriteBatch(), fboBatch = new SpriteBatch(1);
 	private final float gameScale;
-	private FrameBuffer fb;
+	private FrameBuffer fb = new FrameBuffer(Format.RGBA8888, 640, 480, false);
 	private ShaderProgram rotShader;
 
 	private OrthographicCamera camera, fboCam = new OrthographicCamera();
@@ -43,11 +43,10 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		notifier.addListeners(this);
 		this.camera = cam;
 		this.gameScale = gameScale;
-		
-		
+
 		rotShader = new ShaderProgram(Gdx.files.internal("shader/scalex3rotation.vert"),
 				Gdx.files.internal("shader/scalex3rotation.frag"));
-		
+
 		// Shader error checking
 		if (!rotShader.isCompiled()) {
 			rotShader.begin();
@@ -71,7 +70,8 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		batch.setShader(rotShader);
 		fb.begin();
 		batch.begin();
-		rotShader.setUniformi("u_textureSize", 23, 40);
+		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make batch do
+														// this
 		rotShader.setUniformf("u_invTextureSize", 1f / 23, 1f / 40);
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -99,15 +99,8 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		this.width = width;
 		this.height = height;
 
-		if (fb != null)
-			fb.dispose();
-
-		final int standardWidth = 640;
-		final int standardHeight = 480;
-		fb = new FrameBuffer(Format.RGBA8888, standardWidth, standardHeight, false);
-
-		float widthScale = (float) Math.ceil((float) width / standardWidth);
-		float heightScale = (float) Math.ceil((float) height / standardHeight);
+		int widthScale = (int) Math.ceil((float) width / fb.getWidth());
+		int heightScale = (int) Math.ceil((float) height / fb.getHeight());
 
 		fboCam.position.set(Math.round(fb.getWidth() / 2f), Math.round(fb.getHeight() / 2f), 0f);
 		float scale = Math.max(widthScale, heightScale);
@@ -126,27 +119,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	}
 
 	private void drawToScreen() {
-
-		// fboCam.zoom = 1f/ (float)Math.sqrt( (width * (float) height)/
-		// (fb.getWidth() * fb.getHeight()));
-		// fboCam.update();
-		// Gdx.gl.glClearColor(0, 0, 1, 1);
-		// Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		//
-		// final int standardWidth = 640;
-		// final int standardHeight = 480;
-		//
-		// final int widthScale = (int) Math.ceil((float) width /
-		// standardWidth);
-		// final int heightScale = (int) Math.ceil((float) height /
-		// standardHeight);
-		// final int scale = Integer.max(widthScale, heightScale);
-		//
-		// final int drawWidth = fb.getWidth() * scale;
-		// final int drawHeight = fb.getHeight() * scale;
-		//
-		// fboCam.position.set(drawWidth / 2, drawHeight / 2, 0);
-		// fboCam.update();
 
 		fboBatch.setProjectionMatrix(fboCam.combined);
 		fboBatch.begin();

@@ -36,8 +36,6 @@ public class TransformSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		final TransformComponent tc = tm.get(entity);
-		
-		tc.rotation += .003f;
 		final WeldComponent wc = wm.get(entity);
 		calculateAffine2(tc.transform, tc.position, tc.origin, tc.scale, tc.rotation);
 		if (wc != null)

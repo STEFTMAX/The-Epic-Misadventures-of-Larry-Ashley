@@ -18,7 +18,7 @@ varying vec2 v_texCoords;
 
 void main (void) {// implemention scalex3 :O
 
-	vec2 realTexPos = v_texCoords * u_textureSize;
+	vec2 realTexPos = v_texCoords * u_textureSize - vec2(0.5, 0.5);
 	
 	vec2 frac = fract(realTexPos);
 	
