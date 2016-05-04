@@ -62,9 +62,10 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	 */
 	@Override
 	public void update(float deltaTime) {
+		// pass 1
 		camera.viewportWidth = fb.getWidth();
 		camera.viewportHeight = fb.getHeight();
-		camera.zoom = 1f;
+		camera.zoom = 1/3f;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.setShader(rotShader);
@@ -72,7 +73,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		batch.begin();
 		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make batch do
 														// this
-		rotShader.setUniformf("u_invTextureSize", 1f / 23, 1f / 40);
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -82,6 +82,25 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		fb.end();
 
 		drawToScreen();
+		// pass 2
+		
+		camera.viewportWidth = fb.getWidth();
+		camera.viewportHeight = fb.getHeight();
+		camera.zoom = 1/3f;
+		camera.position.x = 40;
+		camera.update();
+		batch.setProjectionMatrix(camera.combined);
+		batch.setShader(null);
+		fb.begin();
+		batch.begin();
+		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
+
+		super.update(deltaTime);
+		batch.end();
+		fb.end();
+
+		drawToScreen();
+		
 	}
 
 	/*
