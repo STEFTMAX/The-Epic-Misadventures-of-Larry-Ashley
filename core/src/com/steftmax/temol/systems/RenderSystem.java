@@ -1,19 +1,19 @@
 package com.steftmax.temol.systems;
 
-import java.util.Scanner;
-
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.GL30;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.steftmax.temol.component.RenderableComponent;
 import com.steftmax.temol.component.TransformComponent;
@@ -37,6 +37,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	private OrthographicCamera camera, fboCam = new OrthographicCamera();
 
 	private int width, height;
+
 	public RenderSystem(OrthographicCamera cam, float gameScale, ResolutionNotifier notifier) {
 		super(Family.all(RenderableComponent.class, TransformComponent.class).get());
 		notifier.addListeners(this);
@@ -62,10 +63,10 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	@Override
 	public void update(float deltaTime) {
 		// pass 1
-//		batch.setColor(0, 0, 1, 0.5f);
+		// batch.setColor(0, 0, 1, 0.5f);
 		camera.viewportWidth = fb.getWidth();
 		camera.viewportHeight = fb.getHeight();
-		camera.zoom = 1/3f;
+		camera.zoom = 1 / 3f;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.setShader(rotShader);
@@ -82,11 +83,11 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 
 		drawToScreen();
 		// pass 2
-		
+
 		camera.viewportWidth = fb.getWidth();
 		camera.viewportHeight = fb.getHeight();
-		camera.zoom = 1/3f;
-		camera.position.x = 100;
+		camera.zoom = 1 / 3f;
+		//camera.position.x = 100;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.setShader(null);
@@ -99,7 +100,41 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		fb.end();
 
 		drawToScreen();
+
 		
+		lineRenderer.begin(camera.combined, GL30.GL_LINES);
+		// ... lineRenderer works a lot
+		grid(100, 100, .5f, .5f, .5f, .5f);
+		// ... lineRenderer works a lot
+		lineRenderer.end();
+
+	}
+
+	static ImmediateModeRenderer20 lineRenderer = new ImmediateModeRenderer20(false, true, 0);
+
+	// create atomic method for line
+	public static void line(float x1, float y1, float z1, float x2, float y2, float z2, float r, float g, float b,
+			float a) {
+		lineRenderer.color(r, g, b, a);
+		lineRenderer.vertex(x1, y1, z1);
+		lineRenderer.color(r, g, b, a);
+		lineRenderer.vertex(x2, y2, z2);
+	}
+
+	// method for whole grid
+	public static void grid(int width, int height, float r, float g, float b, float a) {
+		for (int x = 0; x <= width; x++) {
+			// draw vertical
+			line(x, 0, 0, x, height, 0, r, g, b, a);
+
+		}
+		for (int y = 0; y <= height; y++) {
+			// draw horizontal
+			line(0, y, 0,
+					width, y, 0,
+					r, g, b, a);
+		}
+
 	}
 
 	/*

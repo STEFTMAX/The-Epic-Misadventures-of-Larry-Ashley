@@ -76,9 +76,9 @@ void main (void) {
 	}
 
 	//if (abs(frac.x) > 0.5 || abs(frac.y) > 0.5) {
-	if (v_color == vec4(1.0)) {
-		sampledColor = vec4(abs(frac), 0.0, 1.0);
-	}
+	//if (v_color == vec4(1.0)) {
+	//	sampledColor = vec4(abs(frac), 0.0, 1.0);
+	//}
 	
 	gl_FragColor = v_color * sampledColor;
 }

@@ -63,7 +63,6 @@ public class CollisionSystem extends IteratingSystem {
 		
 		updateBounds(bm.get(entity), rm.get(entity));
 		solveCollision(entity);
-
 		// final Rectangle bounds = bm.get(entity).bounds;
 		//
 		//
