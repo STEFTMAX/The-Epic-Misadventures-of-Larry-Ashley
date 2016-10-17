@@ -1,5 +1,7 @@
 package com.steftmax.temol.systems;
 
+import java.util.Scanner;
+
 import com.badlogic.ashley.core.ComponentMapper;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -7,14 +9,12 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
-import com.badlogic.gdx.math.MathUtils;
 import com.steftmax.temol.component.RenderableComponent;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.listener.ResolutionListener;
@@ -37,7 +37,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	private OrthographicCamera camera, fboCam = new OrthographicCamera();
 
 	private int width, height;
-
 	public RenderSystem(OrthographicCamera cam, float gameScale, ResolutionNotifier notifier) {
 		super(Family.all(RenderableComponent.class, TransformComponent.class).get());
 		notifier.addListeners(this);
@@ -63,6 +62,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	@Override
 	public void update(float deltaTime) {
 		// pass 1
+//		batch.setColor(0, 0, 1, 0.5f);
 		camera.viewportWidth = fb.getWidth();
 		camera.viewportHeight = fb.getHeight();
 		camera.zoom = 1/3f;
@@ -72,7 +72,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		fb.begin();
 		batch.begin();
 		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make batch do
-														// this
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -87,7 +86,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		camera.viewportWidth = fb.getWidth();
 		camera.viewportHeight = fb.getHeight();
 		camera.zoom = 1/3f;
-		camera.position.x = 40;
+		camera.position.x = 100;
 		camera.update();
 		batch.setProjectionMatrix(camera.combined);
 		batch.setShader(null);
