@@ -101,6 +101,8 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new WeldSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
 
+
+		
 //		entityEngine
 //				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constant.SCALE / 5f, Constants.SCALE / 2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
@@ -138,12 +140,11 @@ public class GameScreen extends ScreenAdapter {
 
 		entityEngine.addEntity(ent);
 
-//		Entity ent2 = new Entity();
-//		ent2.add(new TransformComponent(0, 0));
-//		ent2.add(new WeldComponent(ent, 1, 0));
-//		ent2.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
+		Entity ent2 = new Entity();
+		ent2.add(new TransformComponent(0, 0));
+		ent2.add(new RenderableComponent(new TextureRegion(new Texture("pattern.png"))));
 //
-//		entityEngine.addEntity(ent2);
+		entityEngine.addEntity(ent2);
 
 		para = new Parrallaxer(camera, Constants.SCALE * 4, mapPixelWidth, mapPixelHeight);
 		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);

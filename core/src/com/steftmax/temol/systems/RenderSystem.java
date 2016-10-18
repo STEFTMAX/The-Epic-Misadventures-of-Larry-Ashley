@@ -26,22 +26,34 @@ import com.steftmax.temol.notifier.ResolutionNotifier;
  */
 public class RenderSystem extends IteratingSystem implements ResolutionListener {
 
+	private static final boolean DRAWGRID = false;
 	private ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<RenderableComponent> rm = ComponentMapper.getFor(RenderableComponent.class);
 
-	private final SpriteBatch batch = new SpriteBatch(), fboBatch = new SpriteBatch(1);
+	private final SpriteBatch fboBatch = new SpriteBatch(), // fboBatch is
+															// responsible for
+															// drawing on the
+															// fbo
+			screenBatch = new SpriteBatch(1); // screenBatch is responsible for
+												// drawing the fbo on the screen
 	private final float gameScale;
 	private FrameBuffer fb = new FrameBuffer(Format.RGBA8888, 640, 480, false);
 	private ShaderProgram rotShader;
 
-	private OrthographicCamera camera, fboCam = new OrthographicCamera();
+	private OrthographicCamera screenCamera = new OrthographicCamera(), // responsible
+																		// for
+																		// drawing
+																		// on
+																		// the
+																		// screen
+			fboCam;// responsible for drawing on the fbo
 
 	private int width, height;
 
 	public RenderSystem(OrthographicCamera cam, float gameScale, ResolutionNotifier notifier) {
 		super(Family.all(RenderableComponent.class, TransformComponent.class).get());
 		notifier.addListeners(this);
-		this.camera = cam;
+		this.fboCam = cam;
 		this.gameScale = gameScale;
 
 		rotShader = new ShaderProgram(Gdx.files.internal("shader/scalex3rotation.vert"),
@@ -57,56 +69,53 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 
 	/*
 	 * (non-Javadoc)
+	 * Procedure:
+	 * Draw a low res version of the game to a fbo via the shader
+	 *
+	 * then
+	 * 
+	 * Draw the low res version (the fbo) on to the screen with the normal
+	 * shader and the correct scale
 	 * 
 	 * @see com.badlogic.ashley.systems.IteratingSystem#update(float)
 	 */
 	@Override
 	public void update(float deltaTime) {
 		// pass 1
-		// batch.setColor(0, 0, 1, 0.5f);
-		camera.viewportWidth = fb.getWidth();
-		camera.viewportHeight = fb.getHeight();
-		camera.zoom = 1 / 3f;
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.setShader(rotShader);
+		// fboBatch.setColor(0, 0, 1, 0.5f);
+		fboCam.viewportWidth = fb.getWidth();
+		fboCam.viewportHeight = fb.getHeight();
+		fboCam.zoom = 1;
+		fboCam.update();
+		fboBatch.setProjectionMatrix(fboCam.combined);
+		//fboBatch.setShader(rotShader);
 		fb.begin();
-		batch.begin();
-		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make batch do
+		fboBatch.begin();
+		 //rotShader.setUniformi("u_textureSize", 23, 40);// TODO make fboBatch
+		// do
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		super.update(deltaTime);
-		batch.end();
+		fboBatch.end();
 		fb.end();
+		screenBatch.setProjectionMatrix(screenCamera.combined);
+		screenBatch.setShader(null);
+		screenBatch.setProjectionMatrix(screenCamera.combined);
+		screenBatch.begin();
+		screenBatch.draw(fb.getColorBufferTexture(), 0, 0, fb.getWidth(), fb.getHeight(), 0, 0, 1, 1);
+		screenBatch.end();
+		System.out.println(rotShader.getLog());
 
-		drawToScreen();
-		// pass 2
-
-		camera.viewportWidth = fb.getWidth();
-		camera.viewportHeight = fb.getHeight();
-		camera.zoom = 1 / 3f;
-		//camera.position.x = 100;
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		batch.setShader(null);
-		fb.begin();
-		batch.begin();
-		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
-
-		super.update(deltaTime);
-		batch.end();
-		fb.end();
-
-		drawToScreen();
-
-		
-		lineRenderer.begin(camera.combined, GL30.GL_LINES);
-		// ... lineRenderer works a lot
-		grid(100, 100, .5f, .5f, .5f, .5f);
-		// ... lineRenderer works a lot
-		lineRenderer.end();
+		if (DRAWGRID) {
+			// draw raster
+			lineRenderer.begin(fboCam.combined, GL30.GL_LINES);
+			// ... lineRenderer works a lot
+			grid(100, 100, .5f, .5f, .5f, .5f);
+			// ... lineRenderer works a lot
+			lineRenderer.end();
+		}
 
 	}
 
@@ -130,9 +139,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		}
 		for (int y = 0; y <= height; y++) {
 			// draw horizontal
-			line(0, y, 0,
-					width, y, 0,
-					r, g, b, a);
+			line(0, y, 0, width, y, 0, r, g, b, a);
 		}
 
 	}
@@ -145,9 +152,9 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	@Override
 	public void resize(int width, int height) {
 
-		fboCam.viewportWidth = width;
-		fboCam.viewportHeight = height;
-		fboCam.update();
+		screenCamera.viewportWidth = width;
+		screenCamera.viewportHeight = height;
+		screenCamera.update();
 
 		this.width = width;
 		this.height = height;
@@ -155,10 +162,10 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		int widthScale = (int) Math.ceil((float) width / fb.getWidth());
 		int heightScale = (int) Math.ceil((float) height / fb.getHeight());
 
-		fboCam.position.set(Math.round(fb.getWidth() / 2f), Math.round(fb.getHeight() / 2f), 0f);
+		screenCamera.position.set(Math.round(fb.getWidth() / 2f), Math.round(fb.getHeight() / 2f), 0f);
 		float scale = Math.max(widthScale, heightScale);
-		fboCam.zoom = 1f / scale;
-		fboCam.update();
+		screenCamera.zoom = 1f / scale;
+		screenCamera.update();
 
 		fb.getColorBufferTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 		System.out.println(width % scale == 0 ? "true" : "untrue");// TODO force
@@ -169,15 +176,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		// rotShader.begin();
 		// rotShader.setUniformi("u_resolution", width, height);
 		// rotShader.end();
-	}
-
-	private void drawToScreen() {
-
-		fboBatch.setProjectionMatrix(fboCam.combined);
-		fboBatch.begin();
-		fboBatch.draw(fb.getColorBufferTexture(), 0, 0, fb.getWidth(), fb.getHeight(), 0, 0, 1, 1);
-		fboBatch.end();
-
 	}
 
 	/*
@@ -191,7 +189,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	protected void processEntity(Entity entity, float deltaTime) {
 		TextureRegion tr = rm.get(entity).region;
 		// Note: the scaling happens here, that is quite important to know
-		batch.draw(tr, tr.getRegionWidth(), tr.getRegionHeight(), tm.get(entity).transform);
+		fboBatch.draw(tr, tr.getRegionWidth(), tr.getRegionHeight(), tm.get(entity).transform);
 
 	}
 
