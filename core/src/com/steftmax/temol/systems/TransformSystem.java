@@ -45,7 +45,7 @@ public class TransformSystem extends IteratingSystem {
 		
 		
 		
-		tc.rotation += .1f * deltaTime;
+		//tc.rotation += .1f * deltaTime;
 		
 		calculateAffine2(tc.transform, correctedPosition, tc.origin, tc.scale, tc.rotation);
 		//TODO check if it works too for the weld

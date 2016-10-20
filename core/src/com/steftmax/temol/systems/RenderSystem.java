@@ -86,7 +86,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		// fboBatch.setColor(0, 0, 1, 0.5f);
 		fboCam.viewportWidth = fb.getWidth();
 		fboCam.viewportHeight = fb.getHeight();
-		fboCam.zoom = 1;
+		fboCam.zoom = 1f/3f;
 		fboCam.position.set(0f, 0f, 0f); //TODO production change
 		fboCam.update();
 		fboBatch.setProjectionMatrix(fboCam.combined);
