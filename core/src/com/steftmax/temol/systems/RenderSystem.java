@@ -97,6 +97,7 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 														// make a texturemap
 														// which has a solid
 														// size
+		rotShader.setUniformf("u_invTextureSize", 1/23f, 1/40f);
 		// do
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
