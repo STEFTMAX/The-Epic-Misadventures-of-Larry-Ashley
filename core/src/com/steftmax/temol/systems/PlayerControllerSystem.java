@@ -8,6 +8,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
+import com.steftmax.temol.component.RotationComponent;
+import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 
 /**
@@ -20,9 +22,10 @@ public class PlayerControllerSystem extends IteratingSystem {
 	private static final float JUMP = 5f;
 	private static final float MOVEACCELERATION = 4f;
 	private static final float STANDACCELERATION = 20f;
-//	private ComponentMapper<PositionComponent> pm = ComponentMapper.getFor(PositionComponent.class);
+	private ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
+	private ComponentMapper<RotationComponent> rm = ComponentMapper.getFor(RotationComponent.class);
 
 	public PlayerControllerSystem() {
 		super(Family.all(PlayerComponent.class, VelocityComponent.class, GravityComponent.class).get());
@@ -38,9 +41,11 @@ public class PlayerControllerSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 
-//		final PositionComponent pc = pm.get(entity);
+		final TransformComponent tc = tm.get(entity);
 		final VelocityComponent vc = vm.get(entity);
 		final GravityComponent gc = gm.get(entity);
+		
+		final RotationComponent rc = rm.get(entity);
 
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
@@ -76,6 +81,16 @@ public class PlayerControllerSystem extends IteratingSystem {
 				if (Math.abs(vc.velocity.x) > MAXVELOCITY) {
 					vc.velocity.x = Math.signum(vc.velocity.x) * MAXVELOCITY;
 				}
+			}
+		}
+		
+		if (rc != null) {
+			if (Gdx.input.isKeyPressed(Input.Keys.J)) {
+				tc.rotation -= .05f *deltaTime;
+			}
+			
+			if (Gdx.input.isKeyPressed(Input.Keys.K)) {
+				tc.rotation += .05f *deltaTime;
 			}
 		}
 	}

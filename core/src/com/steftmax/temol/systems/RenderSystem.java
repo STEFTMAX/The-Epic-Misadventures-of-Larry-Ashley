@@ -48,8 +48,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 																		// screen
 			fboCam;// responsible for drawing on the fbo
 
-	private int width, height;
-
 	public RenderSystem(OrthographicCamera cam, float gameScale, ResolutionNotifier notifier) {
 		super(Family.all(RenderableComponent.class, TransformComponent.class).get());
 		notifier.addListeners(this);
@@ -77,6 +75,9 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	 * Draw the low res version (the fbo) on to the screen with the normal
 	 * shader and the correct scale
 	 * 
+	 * TODO solve the problem with non rotating objects which start moving quite
+	 * wierdly when this meganism is applied to them
+	 * 
 	 * @see com.badlogic.ashley.systems.IteratingSystem#update(float)
 	 */
 	@Override
@@ -86,12 +87,16 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		fboCam.viewportWidth = fb.getWidth();
 		fboCam.viewportHeight = fb.getHeight();
 		fboCam.zoom = 1;
+		fboCam.position.set(0f, 0f, 0f); //TODO production change
 		fboCam.update();
 		fboBatch.setProjectionMatrix(fboCam.combined);
-		//fboBatch.setShader(rotShader);
+		fboBatch.setShader(rotShader);
 		fb.begin();
 		fboBatch.begin();
-		 //rotShader.setUniformi("u_textureSize", 23, 40);// TODO make fboBatch
+		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make fboBatch or
+														// make a texturemap
+														// which has a solid
+														// size
 		// do
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -104,9 +109,10 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		screenBatch.setShader(null);
 		screenBatch.setProjectionMatrix(screenCamera.combined);
 		screenBatch.begin();
-		screenBatch.draw(fb.getColorBufferTexture(), 0, 0, fb.getWidth(), fb.getHeight(), 0, 0, 1, 1);
+		final int w = fb.getWidth();
+		final int h = fb.getHeight();
+		screenBatch.draw(fb.getColorBufferTexture(), -w / 2f, -h / 2f, w, h, 0, 0, 1, 1);
 		screenBatch.end();
-		System.out.println(rotShader.getLog());
 
 		if (DRAWGRID) {
 			// draw raster
@@ -152,22 +158,30 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	@Override
 	public void resize(int width, int height) {
 
-		screenCamera.viewportWidth = width;
-		screenCamera.viewportHeight = height;
-		screenCamera.update();
-
-		this.width = width;
-		this.height = height;
-
+		// Scale algorithm
 		int widthScale = (int) Math.ceil((float) width / fb.getWidth());
 		int heightScale = (int) Math.ceil((float) height / fb.getHeight());
 
-		screenCamera.position.set(Math.round(fb.getWidth() / 2f), Math.round(fb.getHeight() / 2f), 0f);
 		float scale = Math.max(widthScale, heightScale);
+		System.out.println("Scale: " + scale);
+
+		screenCamera.viewportWidth = width;
+		screenCamera.viewportHeight = height;
+
+		// screenCamera.viewportWidth = (float) (Math.ceil(width / scale) *
+		// scale);
+		// screenCamera.viewportHeight = (float) (Math.ceil(height / scale) *
+		// scale);
+		System.out.println("viewport width: " + screenCamera.viewportWidth);
+		System.out.println("viewport height: " + screenCamera.viewportHeight);
+		screenCamera.update();
+
 		screenCamera.zoom = 1f / scale;
 		screenCamera.update();
 
 		fb.getColorBufferTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+
+		// math.ceil(width/scale)=true screen width
 		System.out.println(width % scale == 0 ? "true" : "untrue");// TODO force
 																	// same
 																	// thingy

@@ -31,14 +31,27 @@ public class TransformSystem extends IteratingSystem {
 	 * ashley.core.Entity, float)
 	 */
 	
-	
+	final Vector2 correctedPosition = new Vector2();
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		final TransformComponent tc = tm.get(entity);
 		final WeldComponent wc = wm.get(entity);
-		calculateAffine2(tc.transform, tc.position, tc.origin, tc.scale, tc.rotation);
+		
+		
+		// position correction mechanism for the rotation shader to work correctly on normal objects
+		//correctedPosition.set( ((float) Math.floor(tc.position.x)) + .5f, ((float) (Math.floor(tc.position.y))) + 5f);
+		correctedPosition.set(tc.position);
+		
+		
+		
+		tc.rotation += .1f * deltaTime;
+		
+		calculateAffine2(tc.transform, correctedPosition, tc.origin, tc.scale, tc.rotation);
+		//TODO check if it works too for the weld
 		if (wc != null)
+			
+			
 			calculateAffine2(wc.transform, wc.position, wc.origin, wc.scale, wc.rotation);
 	}
 

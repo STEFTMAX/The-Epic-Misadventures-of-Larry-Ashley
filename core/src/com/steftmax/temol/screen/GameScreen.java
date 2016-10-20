@@ -28,6 +28,7 @@ import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.RenderableComponent;
+import com.steftmax.temol.component.RotationComponent;
 import com.steftmax.temol.component.TransformComponent;
 import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.component.WeldComponent;
@@ -143,7 +144,10 @@ public class GameScreen extends ScreenAdapter {
 		Entity ent2 = new Entity();
 		ent2.add(new TransformComponent(0, 0));
 		ent2.add(new RenderableComponent(new TextureRegion(new Texture("pattern.png"))));
-//
+		ent2.add(new RotationComponent());
+		ent2.add(new VelocityComponent());
+		ent2.add(new PlayerComponent());
+		ent2.add(new GravityComponent());
 		entityEngine.addEntity(ent2);
 
 		para = new Parrallaxer(camera, Constants.SCALE * 4, mapPixelWidth, mapPixelHeight);

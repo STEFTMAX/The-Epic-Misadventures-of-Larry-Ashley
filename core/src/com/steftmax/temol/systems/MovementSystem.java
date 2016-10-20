@@ -34,6 +34,8 @@ public class MovementSystem extends IteratingSystem {
 		final Vector2 velocity = vm.get(entity).velocity;
 		final TransformComponent pc = pm.get(entity);
 //		pc.lastPosition.set(pc.position); TODO last positioning
-		pm.get(entity).position.add(velocity.x * deltaTime, velocity.y * deltaTime);
+		pc.position.add(velocity.x * deltaTime, velocity.y * deltaTime);
+		
+//		pc.rotation += .1f*deltaTime;
 	}
 }

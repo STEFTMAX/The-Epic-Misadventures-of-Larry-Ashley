@@ -18,6 +18,8 @@ void main (void) {
 	
 	vec2 texCoord0 = a_texCoord0;
 	
+	//this gets the different pixel coordinates for the surrounding pixels, unless the u_texturesize is incorrect 
+	
 	v_texCoords[0] = vec2(texCoord0.x - dx, texCoord0.y +dy);
 	v_texCoords[1] = vec2(texCoord0.x, texCoord0.y +dy);
 	v_texCoords[2] = vec2(texCoord0.x + dx, texCoord0.y +dy);
