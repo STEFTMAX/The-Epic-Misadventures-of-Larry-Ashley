@@ -40,7 +40,7 @@ public class CameraTrackingSystem extends IteratingSystem {
 		
 		TransformComponent tc = pm.get(entity);
 
-		camera.position.set(tc.position.x, tc.position.y, 0f);
+		camera.position.set(Math.round(tc.position.x), Math.round(tc.position.y), 0f);
 
 		if (updateCam)
 			camera.update();

@@ -86,8 +86,8 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		// fboBatch.setColor(0, 0, 1, 0.5f);
 		fboCam.viewportWidth = fb.getWidth();
 		fboCam.viewportHeight = fb.getHeight();
-		fboCam.zoom = 1f/3f;
-		fboCam.position.set(0f, 0f, 0f); //TODO production change
+		fboCam.zoom = 1f;
+//		fboCam.position.set(0f, 0f, 0f); //TODO production change
 		fboCam.update();
 		fboBatch.setProjectionMatrix(fboCam.combined);
 		fboBatch.setShader(rotShader);
@@ -97,7 +97,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 														// make a texturemap
 														// which has a solid
 														// size
-		rotShader.setUniformf("u_invTextureSize", 1/23f, 1/40f);
 		// do
 		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
 		Gdx.gl.glClearColor(1, 1, 1, 1);
@@ -106,8 +105,13 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		super.update(deltaTime);
 		fboBatch.end();
 		fb.end();
-		screenBatch.setProjectionMatrix(screenCamera.combined);
+		
+		
+		
+		
 		screenBatch.setShader(null);
+		screenCamera.position.set(3f/8f, 3f/8f,0);
+		screenCamera.update();
 		screenBatch.setProjectionMatrix(screenCamera.combined);
 		screenBatch.begin();
 		final int w = fb.getWidth();
