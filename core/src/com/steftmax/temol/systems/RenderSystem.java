@@ -15,8 +15,10 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ImmediateModeRenderer20;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.steftmax.temol.component.RenderableComponent;
 import com.steftmax.temol.component.TransformComponent;
+import com.steftmax.temol.gfx.parrallax.Parrallaxer;
 import com.steftmax.temol.listener.ResolutionListener;
 import com.steftmax.temol.notifier.ResolutionNotifier;
 
@@ -27,6 +29,7 @@ import com.steftmax.temol.notifier.ResolutionNotifier;
 public class RenderSystem extends IteratingSystem implements ResolutionListener {
 
 	private static final boolean DRAWGRID = false;
+	private static final int VIRTUALWIDTH = 640, VIRTUALHEIGHT = 480;
 	private ComponentMapper<TransformComponent> tm = ComponentMapper.getFor(TransformComponent.class);
 	private ComponentMapper<RenderableComponent> rm = ComponentMapper.getFor(RenderableComponent.class);
 
@@ -36,23 +39,21 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 															// fbo
 			screenBatch = new SpriteBatch(1); // screenBatch is responsible for
 												// drawing the fbo on the screen
-	private final float gameScale;
-	private FrameBuffer fb = new FrameBuffer(Format.RGBA8888, 640, 480, false);
+	private FrameBuffer fb = new FrameBuffer(Format.RGBA8888, VIRTUALWIDTH, VIRTUALHEIGHT, false);
 	private ShaderProgram rotShader;
 
-	private OrthographicCamera screenCamera = new OrthographicCamera(), // responsible
-																		// for
-																		// drawing
-																		// on
-																		// the
-																		// screen
-			fboCam;// responsible for drawing on the fbo
+	private OrthographicCamera screenCamera = new OrthographicCamera(), fboCam;
 
-	public RenderSystem(OrthographicCamera cam, float gameScale, ResolutionNotifier notifier) {
+	private OrthogonalTiledMapRenderer mapRenderer;
+	private Parrallaxer parrallaxer;
+
+	public RenderSystem(OrthographicCamera cam, ResolutionNotifier notifier, OrthogonalTiledMapRenderer mapRenderer,
+			Parrallaxer parrallaxer) {
 		super(Family.all(RenderableComponent.class, TransformComponent.class).get());
 		notifier.addListeners(this);
 		this.fboCam = cam;
-		this.gameScale = gameScale;
+		this.mapRenderer = mapRenderer;
+		this.parrallaxer = parrallaxer;
 
 		rotShader = new ShaderProgram(Gdx.files.internal("shader/scalex3rotation.vert"),
 				Gdx.files.internal("shader/scalex3rotation.frag"));
@@ -75,42 +76,48 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	 * Draw the low res version (the fbo) on to the screen with the normal
 	 * shader and the correct scale
 	 * 
-	 * TODO solve the problem with non rotating objects which start moving quite
-	 * wierdly when this meganism is applied to them
 	 * 
 	 * @see com.badlogic.ashley.systems.IteratingSystem#update(float)
 	 */
 	@Override
 	public void update(float deltaTime) {
-		// pass 1
-		// fboBatch.setColor(0, 0, 1, 0.5f);
+
 		fboCam.viewportWidth = fb.getWidth();
 		fboCam.viewportHeight = fb.getHeight();
-		fboCam.zoom = 1f;
-//		fboCam.position.set(0f, 0f, 0f); //TODO production change
 		fboCam.update();
 		fboBatch.setProjectionMatrix(fboCam.combined);
 		fboBatch.setShader(rotShader);
 		fb.begin();
-		fboBatch.begin();
-		rotShader.setUniformi("u_textureSize", 23, 40);// TODO make fboBatch or
-														// make a texturemap
-														// which has a solid
-														// size
-		// do
-		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
-		Gdx.gl.glClearColor(1, 1, 1, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+		// TODO make fboBatch or make a texturemap which has a solid size
+		rotShader.setUniformi("u_textureSize", 23, 40);
+
+		Gdx.gl.glViewport(0, 0, fb.getWidth(), fb.getHeight());
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		// draw everything to the virtual display
+
+		// map
+
+		mapRenderer.setView(fboCam);
+		mapRenderer.render();
+		
+		
+		// killing a fucking dog is nice when you aren't forced to do so
+
+		// entities
+		
+		//parrallaxer.draw(fboBatch);
+
+		fboBatch.begin();
+		
 		super.update(deltaTime);
 		fboBatch.end();
 		fb.end();
-		
-		
-		
-		
+
+		// draw the virtual display to the real display correctly
 		screenBatch.setShader(null);
-		screenCamera.position.set(3f/8f, 3f/8f,0);
+		screenCamera.position.set(3f / 8f, 3f / 8f, 0); // magic numbers
 		screenCamera.update();
 		screenBatch.setProjectionMatrix(screenCamera.combined);
 		screenBatch.begin();
@@ -173,10 +180,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		screenCamera.viewportWidth = width;
 		screenCamera.viewportHeight = height;
 
-		// screenCamera.viewportWidth = (float) (Math.ceil(width / scale) *
-		// scale);
-		// screenCamera.viewportHeight = (float) (Math.ceil(height / scale) *
-		// scale);
 		System.out.println("viewport width: " + screenCamera.viewportWidth);
 		System.out.println("viewport height: " + screenCamera.viewportHeight);
 		screenCamera.update();
@@ -185,16 +188,6 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 		screenCamera.update();
 
 		fb.getColorBufferTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-
-		// math.ceil(width/scale)=true screen width
-		System.out.println(width % scale == 0 ? "true" : "untrue");// TODO force
-																	// same
-																	// thingy
-																	// you know
-																	// what to
-		// rotShader.begin();
-		// rotShader.setUniformi("u_resolution", width, height);
-		// rotShader.end();
 	}
 
 	/*

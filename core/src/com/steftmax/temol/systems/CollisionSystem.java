@@ -54,44 +54,16 @@ public class CollisionSystem extends IteratingSystem {
 	}
 
 	private void updateBounds(CollisionComponent cc, RenderableComponent rc) {
-		cc.bounds.setSize(rc.region.getRegionWidth() * Constants.PIXELSTOMETERS,
-				rc.region.getRegionHeight() * Constants.PIXELSTOMETERS);
+		cc.bounds.setSize(rc.region.getRegionWidth(), rc.region.getRegionHeight());
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		
-		updateBounds(bm.get(entity), rm.get(entity));
+
+		RenderableComponent rc = rm.get(entity);
+		if (rc != null)
+			updateBounds(bm.get(entity), rc);
 		solveCollision(entity);
-		// final Rectangle bounds = bm.get(entity).bounds;
-		//
-		//
-		// final Vector2 position = pm.get(entity).position;
-		// final Vector2 velocity = vm.get(entity).velocity;
-		// bounds.setCenter(position);// Sync bounds position beforehand...
-		//
-		// Set<Cell> cells = getCollidingCells(bounds);
-		//
-		//
-		// for (Cell cell : cells) {
-		//
-		// if (!cell.getTile().getProperties().containsKey("decoration")) {
-		//
-		// position.set(pm.get(entity).lastPosition);
-		// velocity.set(0f,0f);
-		// GravityComponent g = gc.get(entity);
-		// if (g != null) {
-		// System.out.println("grounded");
-		// g.isGrounded = true;
-		// }
-		//
-		//
-		//
-		// }
-		//
-		// }
-		//
-		// bounds.setCenter(position);// ...and sync afterwards
 	}
 
 	/**
@@ -109,11 +81,11 @@ public class CollisionSystem extends IteratingSystem {
 		// final float ox = bounds.x % tileWidth;
 		// final float oy = bounds.y % tileHeight;
 
-		final int ixa = (int) (bounds.x * Constants.METERSTOPIXELS / tileWidth);
-		final int ixb = (int) ((bounds.x + bounds.width) * Constants.METERSTOPIXELS / tileWidth);
+		final int ixa = (int) (bounds.x / tileWidth);
+		final int ixb = (int) ((bounds.x + bounds.width) / tileWidth);
 
-		final int iya = (int) (bounds.y * Constants.METERSTOPIXELS / tileHeight);
-		final int iyb = (int) ((bounds.y + bounds.height) * Constants.METERSTOPIXELS / tileHeight);
+		final int iya = (int) (bounds.y / tileHeight);
+		final int iyb = (int) ((bounds.y + bounds.height) / tileHeight);
 
 		for (int x = 0; x <= ixb - ixa; x++) {
 			for (int y = 0; y <= iyb - iya; y++) {
@@ -124,11 +96,10 @@ public class CollisionSystem extends IteratingSystem {
 				final Cell currentCell = layer.getCell(x + ixa, y + iya);
 				if (currentCell != null) {
 
-					final float cellPositionAX = (x + ixa) * tileHeight * Constants.PIXELSTOMETERS;
-					final float cellPositionAY = (y + iya) * tileHeight * Constants.PIXELSTOMETERS;
+					final float cellPositionAX = (x + ixa) * tileHeight;
+					final float cellPositionAY = (y + iya) * tileHeight;
 
-					Rectangle cellBounds = new Rectangle(cellPositionAX, cellPositionAY,
-							tileWidth * Constants.PIXELSTOMETERS, tileHeight * Constants.PIXELSTOMETERS);
+					Rectangle cellBounds = new Rectangle(cellPositionAX, cellPositionAY, tileWidth, tileHeight);
 					if (cellBounds.overlaps(bounds)) {
 						rectangles.add(cellBounds);
 					}
@@ -149,16 +120,18 @@ public class CollisionSystem extends IteratingSystem {
 		final Vector2 position = pm.get(entity).position;
 		final Vector2 velocity = vm.get(entity).velocity;
 
-		setBoundsPosition(bm.get(entity), pm.get(entity));// Sync bounds position beforehand...
+		setBoundsPosition(bm.get(entity), pm.get(entity));// Sync bounds
+															// position
+															// beforehand...
 
 		final float tileWidth = layer.getTileWidth();
 		final float tileHeight = layer.getTileHeight();
 
-		final int ixa = (int) (bounds.x * Constants.METERSTOPIXELS / tileWidth);
-		final int ixb = (int) ((bounds.x + bounds.width) * Constants.METERSTOPIXELS / tileWidth);
+		final int ixa = (int) (bounds.x / tileWidth);
+		final int ixb = (int) ((bounds.x + bounds.width) / tileWidth);
 
-		final int iya = (int) (bounds.y * Constants.METERSTOPIXELS / tileHeight);
-		final int iyb = (int) ((bounds.y + bounds.height) * Constants.METERSTOPIXELS / tileHeight);
+		final int iya = (int) (bounds.y / tileHeight);
+		final int iyb = (int) ((bounds.y + bounds.height) / tileHeight);
 
 		for (int x = 0; x <= ixb - ixa; x++) {
 			for (int y = 0; y <= iyb - iya; y++) {
@@ -166,11 +139,10 @@ public class CollisionSystem extends IteratingSystem {
 				final Cell currentCell = layer.getCell(x + ixa, y + iya);
 				if (currentCell != null) {
 
-					final float cellPositionAX = (x + ixa) * tileHeight * Constants.PIXELSTOMETERS;
-					final float cellPositionAY = (y + iya) * tileHeight * Constants.PIXELSTOMETERS;
+					final float cellPositionAX = (x + ixa) * tileHeight;
+					final float cellPositionAY = (y + iya) * tileHeight;
 
-					Rectangle cellBounds = Rectangle.tmp.set(cellPositionAX, cellPositionAY,
-							tileWidth * Constants.PIXELSTOMETERS, tileHeight * Constants.PIXELSTOMETERS);
+					Rectangle cellBounds = Rectangle.tmp.set(cellPositionAX, cellPositionAY, tileWidth, tileHeight);
 
 					if (cellBounds.overlaps(bounds)) {/// actual collision
 
@@ -234,7 +206,8 @@ public class CollisionSystem extends IteratingSystem {
 			}
 		}
 
-		setBoundsPosition(bm.get(entity), pm.get(entity));// ...and sync afterwards
+		setBoundsPosition(bm.get(entity), pm.get(entity));// ...and sync
+															// afterwards
 	}
 
 }

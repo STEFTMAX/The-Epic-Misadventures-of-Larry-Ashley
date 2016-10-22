@@ -15,4 +15,8 @@ public class CollisionComponent implements Component {
 	public CollisionComponent(Rectangle bounds) {
 		this.bounds = bounds;
 	}
+	
+	public CollisionComponent() {
+		bounds = new Rectangle();
+	}
 }

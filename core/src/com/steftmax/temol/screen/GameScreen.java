@@ -61,22 +61,31 @@ public class GameScreen extends ScreenAdapter {
 	private TiledMap map;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private OrthographicCamera camera;
-	
+
 	private SpriteBatch batch = new SpriteBatch(10);
 
 	private Parrallaxer para;
 
 	private InputMultiplexer inputMultiplexer = new InputMultiplexer();
-	
+
 	ResolutionNotifier rn = new ResolutionNotifier();
 
 	public GameScreen(Game g) {
 
 		this.g = g;
+		// -----Parrallaxer
+
+		para = new Parrallaxer(camera, 4, 1, 1);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer2.png")), .5f);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer3.png")), .75f);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer4.png")), .8f);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer5.png")), .9f);
+		para.addLayer(new TextureRegion(new Texture("gfx/Layer6.png")), 2);
 
 		// -----Tiled Map-----
 		map = new TmxMapLoader().load("maps/testmap.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map, Constants.SCALE);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, 1);
 		MapProperties prop = map.getProperties();
 
 		int mapWidth = prop.get("width", Integer.class);
@@ -89,53 +98,35 @@ public class GameScreen extends ScreenAdapter {
 
 		// -----Camera & Viewport-----
 		camera = new OrthographicCamera();
-//		camera.zoom = Constants.SCALE / 2;
+		// camera.zoom = Constants.SCALE / 2;
 		camera.update();
 		// -----Ashley-----
 
 		entityEngine = new Engine();
 
 		entityEngine.addSystem(new PlayerControllerSystem());
-		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10)));
+		entityEngine.addSystem(new GravitySystem(new Vector2(0, -10 * 21)));
 		entityEngine.addSystem(new MovementSystem());
 		entityEngine.addSystem(new TransformSystem());
 		entityEngine.addSystem(new WeldSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
 
-
-		
-//		entityEngine
-//				.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constant.SCALE / 5f, Constants.SCALE / 2f, .008f, .19f, true));
+		//entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constants.SCALE / 5f,
+		//		Constants.SCALE / 2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
-		entityEngine.addSystem(new EntitySystem() {
-
-			@Override
-			public void update(float deltaTime) {
-
-				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-				//batch.setProjectionMatrix(camera.combined);
-				//batch.begin();
-				//para.draw(batch);
-				//batch.end();
-				//mapRenderer.setView(camera);
-				//mapRenderer.render();
-				super.update(deltaTime);
-			}
-		});
-
 		entityEngine.addSystem(new DebugRenderSystem(camera));
-		entityEngine.addSystem(new RenderSystem(camera, Constants.SCALE, rn));
+		entityEngine.addSystem(new RenderSystem(camera, rn, mapRenderer, para));
 
 		Entity ent = new Entity();
 
-		ent.add(new CollisionComponent(new Rectangle(0, 0, 2, 2)));
+		ent.add(new CollisionComponent());
 		ent.add(new VelocityComponent());
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
-		TransformComponent trnsfrm = new TransformComponent(5f, 15f);
-		trnsfrm.origin.set(23 * .5f* Constants.PIXELSTOMETERS, 26 * Constants.PIXELSTOMETERS);
+		TransformComponent trnsfrm = new TransformComponent(5f , 30 * 9 );
+		trnsfrm.origin.set(23 * .5f, 26);
 		ent.add(trnsfrm);
 		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
 
@@ -149,14 +140,6 @@ public class GameScreen extends ScreenAdapter {
 		ent2.add(new PlayerComponent());
 		ent2.add(new GravityComponent());
 		entityEngine.addEntity(ent2);
-
-		para = new Parrallaxer(camera, Constants.SCALE * 4, mapPixelWidth, mapPixelHeight);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer1.png")), .4f);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer2.png")), .5f);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer3.png")), .75f);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer4.png")), .8f);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer5.png")), .9f);
-		para.addLayer(new TextureRegion(new Texture("gfx/Layer6.png")), 2);
 
 	}
 
