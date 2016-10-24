@@ -54,7 +54,8 @@ public class CollisionSystem extends IteratingSystem {
 	}
 
 	private void updateBounds(CollisionComponent cc, RenderableComponent rc) {
-		cc.bounds.setSize(rc.region.getRegionWidth(), rc.region.getRegionHeight());
+		if (rc.region != null)
+			cc.bounds.setSize(rc.region.getRegionWidth(), rc.region.getRegionHeight());
 	}
 
 	@Override

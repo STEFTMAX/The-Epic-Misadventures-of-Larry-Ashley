@@ -101,16 +101,15 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 
 		mapRenderer.setView(fboCam);
 		mapRenderer.render();
-		
-		
+
 		// killing a fucking dog is nice when you aren't forced to do so
 
 		// entities
-		
-		//parrallaxer.draw(fboBatch);
+
+		// parrallaxer.draw(fboBatch);
 
 		fboBatch.begin();
-		
+
 		super.update(deltaTime);
 		fboBatch.end();
 		fb.end();
@@ -201,7 +200,8 @@ public class RenderSystem extends IteratingSystem implements ResolutionListener 
 	protected void processEntity(Entity entity, float deltaTime) {
 		TextureRegion tr = rm.get(entity).region;
 		// Note: the scaling happens here, that is quite important to know
-		fboBatch.draw(tr, tr.getRegionWidth(), tr.getRegionHeight(), tm.get(entity).transform);
+		if (tr != null)
+			fboBatch.draw(tr, tr.getRegionWidth(), tr.getRegionHeight(), tm.get(entity).transform);
 
 	}
 

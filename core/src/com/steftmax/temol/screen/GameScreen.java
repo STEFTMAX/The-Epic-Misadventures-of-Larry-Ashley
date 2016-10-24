@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.PixmapPacker;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -22,6 +24,7 @@ import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
+import com.steftmax.temol.component.AnimationComponent;
 import com.steftmax.temol.component.CameraTargetComponent;
 import com.steftmax.temol.component.CollisionComponent;
 import com.steftmax.temol.component.GravityComponent;
@@ -34,6 +37,7 @@ import com.steftmax.temol.component.VelocityComponent;
 import com.steftmax.temol.component.WeldComponent;
 import com.steftmax.temol.gfx.parrallax.Parrallaxer;
 import com.steftmax.temol.notifier.ResolutionNotifier;
+import com.steftmax.temol.systems.AnimationSystem;
 import com.steftmax.temol.systems.CameraTrackingSystem;
 import com.steftmax.temol.systems.CameraZoomSystem;
 import com.steftmax.temol.systems.CollisionSystem;
@@ -110,9 +114,11 @@ public class GameScreen extends ScreenAdapter {
 		entityEngine.addSystem(new TransformSystem());
 		entityEngine.addSystem(new WeldSystem());
 		entityEngine.addSystem(new CollisionSystem(map));
+		entityEngine.addSystem(new AnimationSystem());
 
-		//entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera, Constants.SCALE / 5f,
-		//		Constants.SCALE / 2f, .008f, .19f, true));
+		// entityEngine.addSystem(new CameraZoomSystem(inputMultiplexer, camera,
+		// Constants.SCALE / 5f,
+		// Constants.SCALE / 2f, .008f, .19f, true));
 		entityEngine.addSystem(new CameraTrackingSystem(camera));
 
 		entityEngine.addSystem(new DebugRenderSystem(camera));
@@ -125,21 +131,28 @@ public class GameScreen extends ScreenAdapter {
 		ent.add(new CameraTargetComponent());
 		ent.add(new GravityComponent());
 		ent.add(new PlayerComponent());
-		TransformComponent trnsfrm = new TransformComponent(5f , 30 * 9 );
+		TransformComponent trnsfrm = new TransformComponent(5f, 30 * 9);
 		trnsfrm.origin.set(23 * .5f, 26);
 		ent.add(trnsfrm);
-		ent.add(new RenderableComponent(new TextureRegion(new Texture("gfx/M'Larry.png"))));
+		ent.add(new RenderableComponent());
+
+		AnimationComponent ac = new AnimationComponent();
+
+		ac.state = "stand";
+		ac.animations.put("stand", new Animation(1, new TextureRegion(new Texture("gfx/larry/standing.png"))));
+
+		TextureRegion[] frames = new TextureRegion[8];
+		for (int i = 0; i < frames.length; i++) {
+			frames[i] = new TextureRegion(new Texture("gfx/larry/larry_walking/" + (i+1) + ".png"));
+		}
+
+		Animation anim = new Animation(.06f, frames);
+		anim.setPlayMode(PlayMode.LOOP);
+		ac.animations.put("walk", anim);
+
+		ent.add(ac);
 
 		entityEngine.addEntity(ent);
-
-		Entity ent2 = new Entity();
-		ent2.add(new TransformComponent(0, 0));
-		ent2.add(new RenderableComponent(new TextureRegion(new Texture("pattern.png"))));
-		ent2.add(new RotationComponent());
-		ent2.add(new VelocityComponent());
-		ent2.add(new PlayerComponent());
-		ent2.add(new GravityComponent());
-		entityEngine.addEntity(ent2);
 
 	}
 

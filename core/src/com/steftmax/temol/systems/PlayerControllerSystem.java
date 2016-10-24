@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
+import com.steftmax.temol.component.AnimationComponent;
 import com.steftmax.temol.component.GravityComponent;
 import com.steftmax.temol.component.PlayerComponent;
 import com.steftmax.temol.component.RotationComponent;
@@ -26,9 +27,10 @@ public class PlayerControllerSystem extends IteratingSystem {
 	private ComponentMapper<VelocityComponent> vm = ComponentMapper.getFor(VelocityComponent.class);
 	private ComponentMapper<GravityComponent> gm = ComponentMapper.getFor(GravityComponent.class);
 	private ComponentMapper<RotationComponent> rm = ComponentMapper.getFor(RotationComponent.class);
-
+	private ComponentMapper<AnimationComponent> am = ComponentMapper.getFor(AnimationComponent.class);
+	
 	public PlayerControllerSystem() {
-		super(Family.all(PlayerComponent.class, VelocityComponent.class, GravityComponent.class).get());
+		super(Family.all(PlayerComponent.class, VelocityComponent.class, GravityComponent.class, AnimationComponent.class).get());
 	}
 
 	/*
@@ -47,6 +49,8 @@ public class PlayerControllerSystem extends IteratingSystem {
 		
 		final RotationComponent rc = rm.get(entity);
 
+		final AnimationComponent ac = am.get(entity);
+		
 		if (gc.isGrounded) {
 			if (Gdx.input.isKeyPressed(Input.Keys.W)) {
 				vc.velocity.y = JUMP;
@@ -54,25 +58,37 @@ public class PlayerControllerSystem extends IteratingSystem {
 
 			} else {
 				if (Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+					
+					
 					if (vc.velocity.x > 0) {
+						ac.setState("stand");
 						brake(vc, deltaTime);
 					} else {
-
+						ac.setState("walk");
+						tc.scale.x = -1; // head left
 						vc.velocity.x -= MOVEACCELERATION * deltaTime;
+						ac.speedMod = Math.abs(vc.velocity.x/MAXVELOCITY);
 					}
 				}
 
 				if (Gdx.input.isKeyPressed(Input.Keys.D) && !Gdx.input.isKeyPressed(Input.Keys.A)) {
+					
+					
 					if (vc.velocity.x < 0) {
-
+						ac.setState("stand");
 						brake(vc, deltaTime);
 					} else {
-
+						ac.setState("walk");
+						tc.scale.x = 1; // head right
 						vc.velocity.x += MOVEACCELERATION * deltaTime;
+						ac.speedMod = Math.abs(vc.velocity.x/MAXVELOCITY);
+						
 					}
 				}
 
 				if (!Gdx.input.isKeyPressed(Input.Keys.A) && !Gdx.input.isKeyPressed(Input.Keys.D)) {
+					
+					ac.setState("stand");
 					
 					brake(vc, deltaTime);
 					
